@@ -20,7 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Jite\\AssetHandler": "src/"
+      "Jite\\AssetHandler\\": "src/"
     }
   }
 }
