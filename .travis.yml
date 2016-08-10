@@ -1,13 +1,12 @@
 language: php
 php:
   - 7.0
-  - hhvm
   - nightly
 install:
   - composer install --prefer-source --no-interaction --dev
   - pear install pear/PHP_CodeSniffer
 script:
-  phpunit
+  phpcs && phpunit
 notifications:
     on_success: never
     on_failure: always
