@@ -43,7 +43,8 @@ class AssetHandler implements AssetHandlerInterface {
      * @return bool
      */
     private function assetTypeExists(string $type) {
-        return array_key_exists($type, $this->assets);
+        $result = array_key_exists($type, $this->assets);
+        return $result;
     }
 
     /**
@@ -51,8 +52,8 @@ class AssetHandler implements AssetHandlerInterface {
      * @param string $asset
      * @return bool
      */
-    function addStyleSheet(string $asset): bool {
-        if(!in_array($asset, $this->assets[self::ASSET_TYPE_STYLE_SHEET]["assets"])) {
+    public function addStyleSheet(string $asset) : bool {
+        if (!in_array($asset, $this->assets[self::ASSET_TYPE_STYLE_SHEET]["assets"])) {
             $this->assets[self::ASSET_TYPE_STYLE_SHEET]["assets"][] = $asset;
             return true;
         }
@@ -64,8 +65,8 @@ class AssetHandler implements AssetHandlerInterface {
      * @param string $asset
      * @return bool
      */
-    function addScript(string $asset): bool {
-        if(!in_array($asset, $this->assets[self::ASSET_TYPE_SCRIPT]["assets"])) {
+    public function addScript(string $asset) : bool {
+        if (!in_array($asset, $this->assets[self::ASSET_TYPE_SCRIPT]["assets"])) {
             $this->assets[self::ASSET_TYPE_SCRIPT]["assets"][] = $asset;
             return true;
         }
@@ -77,7 +78,7 @@ class AssetHandler implements AssetHandlerInterface {
      * @param bool $value
      * @return void
      */
-    function setUseVersioning(bool $value) {
+    public function setUseVersioning(bool $value) {
         $this->versioning = $value;
     }
 
@@ -89,18 +90,18 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidAssetTypeException
      * @throws AssetNotFoundException
      */
-    function setAssetBasePath(string $path, string $type = self::ASSET_TYPE_ALL): bool {
-        if(!$this->assetTypeExists($type)) {
+    public function setAssetBasePath(string $path, string $type = self::ASSET_TYPE_ALL) : bool {
+        if (!$this->assetTypeExists($type)) {
             throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $type));
         }
 
         $last = substr($path, -1);
-        if($last !== "/" && $last !== '\\') {
+        if ($last !== "/" && $last !== '\\') {
             $path .= "/";
         }
 
-        if($path === self::ASSET_TYPE_ALL) {
-            foreach($this->assets as &$assetContainer) {
+        if ($path === self::ASSET_TYPE_ALL) {
+            foreach ($this->assets as &$assetContainer) {
                 $assetContainer['base_path'] = $path;
             }
         } else {
@@ -109,20 +110,26 @@ class AssetHandler implements AssetHandlerInterface {
 
         // Check so that all the files actually exists.
         $assetsArray = array_map(function($container) {
-            $basePath = $container['base_path'];
-            return array_map(function($path) use($basePath) {
-                return ['full' => $basePath . $path, 'internal' => $path];
-            }, $container['assets']);
+
+                $basePath = $container['base_path'];
+                $result   = array_map(function($path) use($basePath) {
+                        return ['full' => $basePath . $path, 'internal' => $path];
+                }, $container['assets']);
+
+                return $result;
 
         }, $this->assets);
+
         $assets = array_merge(...$assetsArray);
 
         $first = array_first($assets, function($asset) {
-            return !file_exists($asset['full']);
+            $result = file_exists($asset['full']);
+            return !$result;
         });
 
-        if($first !== null) {
-            throw new AssetNotFoundException(sprintf("Asset path (%s) could not be updated, cause the full path (%s) does not point to a valid file.", $first['internal'] ,$first['full']));
+        if ($first !== null) {
+            $template = "Asset path (%s) could not be updated: Full path (%s) does not point to a valid file.";
+            throw new AssetNotFoundException(sprintf($template, $first['internal'] ,$first['full']));
         };
 
         return true;
@@ -134,18 +141,18 @@ class AssetHandler implements AssetHandlerInterface {
      * @return string
      * @throws InvalidAssetTypeException
      */
-    function getAssetBasePath(string $type): string {
-        if($type === self::ASSET_TYPE_ALL) {
+    public function getAssetBasePath(string $type) : string {
+        if ($type === self::ASSET_TYPE_ALL) {
             $path = $$this->assets[self::ASSET_TYPE_SCRIPT]['base_path'];
 
-            foreach($this->assets as $assetContainer) {
-                if($assetContainer['base_path'] !== $path) {
-                    throw new InvalidAssetTypeException("Can not fetch the asset base path for all assets cause the asset types have different base paths.");
+            foreach ($this->assets as $assetContainer) {
+                if ($assetContainer['base_path'] !== $path) {
+                    throw new InvalidAssetTypeException("Can not fetch the asset base path: Assets base path differs.");
                 }
             }
         }
 
-        if(!$this->assetTypeExists($type)) {
+        if (!$this->assetTypeExists($type)) {
             throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $type));
         }
 
@@ -158,14 +165,14 @@ class AssetHandler implements AssetHandlerInterface {
      * @return array All assets of given type or a concatenated array of all assets.
      * @throws InvalidAssetTypeException
      */
-    function getAssets(string $type = self::ASSET_TYPE_ALL): array {
-        if(!$this->assetTypeExists($type)) {
+    public function getAssets(string $type = self::ASSET_TYPE_ALL) : array {
+        if (!$this->assetTypeExists($type)) {
             throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $type));
         }
 
         $result = array();
-        if($type === self::ASSET_TYPE_ALL) {
-            foreach($this->assets as $assetContainer) {
+        if ($type === self::ASSET_TYPE_ALL) {
+            foreach ($this->assets as $assetContainer) {
                 $result = array_merge($result, $assetContainer['assets']);
             }
         } else {
@@ -179,16 +186,17 @@ class AssetHandler implements AssetHandlerInterface {
      * Prints the scripts for html output, including script tags.
      * @return string
      */
-    function scripts(): string {
-        $scripts = $this->getAssets(self::ASSET_TYPE_SCRIPT);
-        $out = "";
-
+    public function scripts() : string {
+        $scripts           = $this->getAssets(self::ASSET_TYPE_SCRIPT);
+        $out               = "";
         $scriptTagTemplate = '<script type="text/javascript" src="%s"></script>' . PHP_EOL;
 
 
-        // Due to the fact that we check if the asset exists when we add it to the asset container, we don't need to check that here.
-        // If the asset has been moved for some odd reason, the asset will not be found when loaded, no exception will be thrown in the php code.
-        foreach($scripts as $scriptPath) {
+        // Due to the fact that we check if the asset exists when we add it to the asset container,
+        // we don't need to check that here.
+        // If the asset has been moved for some odd reason, the asset will not be found when loaded,
+        // no exception will be thrown in the php code.
+        foreach ($scripts as $scriptPath) {
             $out .= sprintf($scriptTagTemplate, $scriptPath);
         }
 
@@ -199,21 +207,20 @@ class AssetHandler implements AssetHandlerInterface {
      * Prints the styles for html output, including style tag.
      * @return string
      */
-    function styles(): string {
-        $styles = $this->getAssets(self::ASSET_TYPE_STYLE_SHEET);
-        $out = "";
+    public function styles() : string {
+        $styles           = $this->getAssets(self::ASSET_TYPE_STYLE_SHEET);
+        $out              = "";
+        $styleTagTemplate = '<link rel="stylesheet" href="%s">' . PHP_EOL;
 
-        $styleTagTemplate  = '<link rel="stylesheet" href="%s">' . PHP_EOL;
-
-
-        // Due to the fact that we check if the asset exists when we add it to the asset container, we don't need to check that here.
-        // If the asset has been moved for some odd reason, the asset will not be found when loaded, no exception will be thrown in the php code.
-        foreach($styles as $stylePath) {
+        // Due to the fact that we check if the asset exists when we add it to the asset container,
+        // we don't need to check that here.
+        // If the asset has been moved for some odd reason, the asset will not be found when loaded,
+        // no exception will be thrown in the php code.
+        foreach ($styles as $stylePath) {
             $out .= sprintf($styleTagTemplate, $stylePath);
         }
 
         return $out;
-
     }
 
     /**
@@ -223,8 +230,8 @@ class AssetHandler implements AssetHandlerInterface {
      * @return string
      * @throws InvalidAssetTypeException
      */
-    function getAssetPath(string $asset, string $assetType): string {
-        if(!$this->assetTypeExists($assetType)) {
+    public function getAssetPath(string $asset, string $assetType) : string {
+        if (!$this->assetTypeExists($assetType)) {
             throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $assetType));
         }
 
