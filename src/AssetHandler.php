@@ -23,19 +23,21 @@ class AssetHandler implements AssetHandlerInterface {
     /**
      * @param string $basePath
      */
-    public function __construct(string $basePath = "public/assets") {
+    public function __construct(string $basePath = "public/assets/") {
+
         $this->versioning = false;
 
         $this->assets = [
             self::ASSET_TYPE_SCRIPT => [
-                "base_path" => $basePath,
-                "assets" => []
+                "base_path" => "",
+                "assets" => array()
             ],
             self::ASSET_TYPE_STYLE_SHEET => [
-                "base_path" => $basePath,
-                "assets" => []
+                "base_path" => "",
+                "assets" => array()
             ]
         ];
+        $this->setAssetBasePath($basePath);
     }
 
     /**
@@ -51,8 +53,16 @@ class AssetHandler implements AssetHandlerInterface {
      * Add a style sheet path
      * @param string $asset
      * @return bool
+     * @throws AssetNotFoundException
      */
     public function addStyleSheet(string $asset) : bool {
+
+        $fullPath = $this->assets[self::ASSET_TYPE_STYLE_SHEET]['base_path'] . $asset;
+        if (!file_exists($fullPath)) {
+            $template = "Asset could not be added. Full path (%s) does not point to a valid file.";
+            throw new AssetNotFoundException(sprintf($template, $fullPath));
+        }
+
         if (!in_array($asset, $this->assets[self::ASSET_TYPE_STYLE_SHEET]["assets"])) {
             $this->assets[self::ASSET_TYPE_STYLE_SHEET]["assets"][] = $asset;
             return true;
@@ -64,8 +74,16 @@ class AssetHandler implements AssetHandlerInterface {
      * Add a script path to the asset handler.
      * @param string $asset
      * @return bool
+     * @throws AssetNotFoundException
      */
     public function addScript(string $asset) : bool {
+
+        $fullPath = $this->assets[self::ASSET_TYPE_SCRIPT]['base_path'] . $asset;
+        if (!file_exists($fullPath)) {
+            $template = "Asset could not be added. Full path (%s) does not point to a valid file.";
+            throw new AssetNotFoundException(sprintf($template, $fullPath));
+        }
+
         if (!in_array($asset, $this->assets[self::ASSET_TYPE_SCRIPT]["assets"])) {
             $this->assets[self::ASSET_TYPE_SCRIPT]["assets"][] = $asset;
             return true;
@@ -84,45 +102,31 @@ class AssetHandler implements AssetHandlerInterface {
 
     /**
      * Set the base path of a given asset type or all.
-     * @param string $path
+     * @param string $basePath
      * @param string $type
      * @return bool
      * @throws InvalidAssetTypeException
      * @throws AssetNotFoundException
      */
-    public function setAssetBasePath(string $path, string $type = self::ASSET_TYPE_ALL) : bool {
-        if (!$this->assetTypeExists($type)) {
+    public function setAssetBasePath(string $basePath, string $type = self::ASSET_TYPE_ALL) : bool {
+        if (!$this->assetTypeExists($type) && $type !== self::ASSET_TYPE_ALL) {
             throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $type));
         }
 
-        $last = substr($path, -1);
+        $last = substr($basePath, -1);
         if ($last !== "/" && $last !== '\\') {
-            $path .= "/";
-        }
-
-        if ($path === self::ASSET_TYPE_ALL) {
-            foreach ($this->assets as &$assetContainer) {
-                $assetContainer['base_path'] = $path;
-            }
-        } else {
-            $this->assets[$type]["base_path"] = $path;
+            $basePath .= "/";
         }
 
         // Check so that all the files actually exists.
-        $assetsArray = array_map(function($container) {
-
-                $basePath = $container['base_path'];
-                $result   = array_map(function($path) use($basePath) {
+        $files = [];
+        foreach ($this->assets as $container) {
+                $files = array_merge($files, array_map(function($path) use($basePath) {
                         return ['full' => $basePath . $path, 'internal' => $path];
-                }, $container['assets']);
+                }, $container['assets']));
+        }
 
-                return $result;
-
-        }, $this->assets);
-
-        $assets = array_merge(...$assetsArray);
-
-        $first = array_first($assets, function($asset) {
+        $first = array_first($files, function($asset) {
             $result = file_exists($asset['full']);
             return !$result;
         });
@@ -131,6 +135,17 @@ class AssetHandler implements AssetHandlerInterface {
             $template = "Asset path (%s) could not be updated: Full path (%s) does not point to a valid file.";
             throw new AssetNotFoundException(sprintf($template, $first['internal'] ,$first['full']));
         };
+
+        // All is good, set the path.
+        if ($type === self::ASSET_TYPE_ALL) {
+            $keys = array_keys($this->assets);
+            for ($i=count($keys); $i-->0;) {
+                $this->assets[$keys[$i]]['base_path'] = $basePath;
+            }
+        } else {
+            $this->assets[$type]["base_path"] = $basePath;
+        }
+
 
         return true;
     }
@@ -143,7 +158,7 @@ class AssetHandler implements AssetHandlerInterface {
      */
     public function getAssetBasePath(string $type) : string {
         if ($type === self::ASSET_TYPE_ALL) {
-            $path = $$this->assets[self::ASSET_TYPE_SCRIPT]['base_path'];
+            $path = $this->assets[self::ASSET_TYPE_SCRIPT]['base_path'];
 
             foreach ($this->assets as $assetContainer) {
                 if ($assetContainer['base_path'] !== $path) {
@@ -231,10 +246,6 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidAssetTypeException
      */
     public function getAssetPath(string $asset, string $assetType) : string {
-        if (!$this->assetTypeExists($assetType)) {
-            throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $assetType));
-        }
-
         $basePath = $this->getAssetBasePath($assetType);
         return $basePath . $asset;
     }

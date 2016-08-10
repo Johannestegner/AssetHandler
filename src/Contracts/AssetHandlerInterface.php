@@ -12,23 +12,25 @@ use Jite\AssetHandler\Exceptions\InvalidAssetTypeException;
 
 interface AssetHandlerInterface {
 
-    const ASSET_TYPE_SCRIPT = "script";
+    const ASSET_TYPE_SCRIPT      = "script";
     const ASSET_TYPE_STYLE_SHEET = "style sheet";
-    const ASSET_TYPE_ALL = "all";
+    const ASSET_TYPE_ALL         = "all";
 
     /**
      * Add a script path to the asset handler.
      * @param string $asset
      * @return bool
+     * @throws AssetNotFoundException
      */
-    function addScript(string $asset): bool;
+    public function addScript(string $asset) : bool;
 
     /**
      * Add a style sheet path
      * @param string $asset
      * @return bool
+     * @throws AssetNotFoundException
      */
-    function addStyleSheet(string $asset): bool;
+    public function addStyleSheet(string $asset) : bool;
 
     /**
      * Get the full path (including the base path) to a given asset.
@@ -37,7 +39,7 @@ interface AssetHandlerInterface {
      * @return string
      * @throws InvalidAssetTypeException
      */
-    function getAssetPath(string $asset, string $assetType): string;
+    public function getAssetPath(string $asset, string $assetType) : string;
 
     /**
      * Set the base path of a given asset type or all.
@@ -47,7 +49,7 @@ interface AssetHandlerInterface {
      * @throws InvalidAssetTypeException
      * @throws AssetNotFoundException
      */
-    function setAssetBasePath(string $path, string $type = self::ASSET_TYPE_ALL): bool;
+    public function setAssetBasePath(string $path, string $type = self::ASSET_TYPE_ALL) : bool;
 
     /**
      * Fetch the base path of a given asset type.
@@ -55,7 +57,7 @@ interface AssetHandlerInterface {
      * @return string
      * @throws InvalidAssetTypeException
      */
-    function getAssetBasePath(string $type): string;
+    public function getAssetBasePath(string $type) : string;
 
     /**
      * Get all assets of a given type or all.
@@ -63,24 +65,24 @@ interface AssetHandlerInterface {
      * @return array All assets of given type or a concatenated array of all assets.
      * @throws InvalidAssetTypeException
      */
-    function getAssets(string $type = self::ASSET_TYPE_ALL): array;
+    public function getAssets(string $type = self::ASSET_TYPE_ALL) : array;
 
     /**
      * Prints the scripts for html output, including script tags.
      * @return string
      */
-    function scripts(): string;
+    public function scripts() : string;
 
     /**
      * Prints the styles for html output, including style tag.
      * @return string
      */
-    function styles(): string;
+    public function styles() : string;
 
     /**
      * Set versioning of assets to on or off.
      * @param bool $value
      * @return void
      */
-    function setUseVersioning(bool $value);
+    public function setUseVersioning(bool $value);
 }
