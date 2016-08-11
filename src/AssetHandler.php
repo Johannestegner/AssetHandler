@@ -118,23 +118,38 @@ class AssetHandler implements AssetHandlerInterface {
             $basePath .= "/";
         }
 
-        // Check so that all the files actually exists.
-        $files = [];
-        foreach ($this->assets as $container) {
-                $files = array_merge($files, array_map(function($path) use($basePath) {
-                        return ['full' => $basePath . $path, 'internal' => $path];
-                }, $container['assets']));
+        if (!is_dir($basePath)) {
+            throw new AssetNotFoundException(sprintf("The directory \"%s\" does not exist.", $basePath));
         }
 
-        $first = array_first($files, function($asset) {
-            $result = file_exists($asset['full']);
-            return !$result;
-        });
+        $files = [];
+        if ($type === self::ASSET_TYPE_ALL) {
 
-        if ($first !== null) {
-            $template = "Asset path (%s) could not be updated: Full path (%s) does not point to a valid file.";
-            throw new AssetNotFoundException(sprintf($template, $first['internal'] ,$first['full']));
-        };
+            // Check so that all the files actually exists.
+
+            foreach ($this->assets as $container) {
+                    $files = array_merge($files, array_map(function($path) use($basePath) {
+                            return ['full' => $basePath . $path, 'internal' => $path];
+                    }, $container['assets']));
+            }
+
+        } else {
+            $paths = $this->assets[$type]['assets'];
+            $files = array_map(function($path) use($basePath) {
+                return [ 'full' => $basePath . $path, 'internal' => $path];
+            }, $paths);
+        }
+
+        // Make sure that a base-path change would not make a file path invalid (file don't exist).
+        foreach ($files as $asset) {
+            if (file_exists($asset['full'])) {
+                continue;
+            }
+
+
+            $temp = "Asset path (%s) could not be updated: The file with path \"%s\" does not point to a valid file.";
+            throw new AssetNotFoundException(sprintf($temp, $asset['internal'] ,$asset['full']));
+        }
 
         // All is good, set the path.
         if ($type === self::ASSET_TYPE_ALL) {
@@ -142,11 +157,10 @@ class AssetHandler implements AssetHandlerInterface {
             for ($i=count($keys); $i-->0;) {
                 $this->assets[$keys[$i]]['base_path'] = $basePath;
             }
-        } else {
-            $this->assets[$type]["base_path"] = $basePath;
+            return true;
         }
 
-
+        $this->assets[$type]["base_path"] = $basePath;
         return true;
     }
 
@@ -165,6 +179,8 @@ class AssetHandler implements AssetHandlerInterface {
                     throw new InvalidAssetTypeException("Can not fetch the asset base path: Assets base path differs.");
                 }
             }
+
+            return $path;
         }
 
         if (!$this->assetTypeExists($type)) {
@@ -246,6 +262,10 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidAssetTypeException
      */
     public function getAssetPath(string $asset, string $assetType) : string {
+        if ($assetType !== self::ASSET_TYPE_ALL && !$this->assetTypeExists($assetType)) {
+            throw new InvalidAssetTypeException(sprintf("The asset type %s does not exist.", $assetType));
+        }
+
         $basePath = $this->getAssetBasePath($assetType);
         return $basePath . $asset;
     }

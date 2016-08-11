@@ -42,6 +42,12 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
                                     "test3.css" => ".some-class { background: blue; }"
                                 ]
                             ]
+                        ],
+                        "private" => [
+                            "assets" => [
+                                "js" => ["test1.js" => "var a = 5;"],
+                                "css" => ["test1.css" => ".some-class {background:blue}"]
+                            ]
                         ]
                     ]
                 ]
@@ -55,20 +61,32 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @param string $name
+     * @param $root vfsStreamDirectory|null
      * @returns vfsStreamDirectory|null
      */
-    private function getDirectory(string $name) {
+    private function getDirectory(string $name, $root = null) {
         /** @var vfsStreamDirectory $child */
-        $child = $this->rootFolder;
+        $child = $root ?? $this->rootFolder;
 
-        while ($child->getName() !== $name) {
-            if (count($child->getChildren()) === 0) {
-                return null;
-            }
-            $child = $child->getChildren()[0];
+        if ($child->getName() === $name) {
+            return $child;
         }
 
-        return $child;
+        if (!is_dir($child->url())) {
+            return null;
+        }
+
+        $children   = $child->getChildren();
+        $childCount = count($children);
+
+        for ($i=$childCount; $i-->0;) {
+            $c = $this->getDirectory($name, $child->getChildren()[$i]);
+            if ($c !== null && $c->getName() === $name) {
+                return $c;
+            }
+        }
+
+        return null;
     }
 
     public function testAddScriptBadPath() {
@@ -117,17 +135,123 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     public function testGetAssetPathAllWithDifferPath() {
         // Due to allowing the "all" type when getting a asset path, this test is needed.
+        // Starting off by changing the path of the scripts, cause if its changed, a "ALL" change should NOT
+        // be permitted.
+        $this->assetHandler->setAssetBasePath("/", AssetHandler::ASSET_TYPE_SCRIPT);
         $this->setExpectedException(InvalidAssetTypeException::class,
             "Can not fetch the asset base path: Assets base path differs.");
-        $this->assetHandler->setAssetBasePath("/", AssetHandler::ASSET_TYPE_SCRIPT);
         $this->assetHandler->getAssetPath("assets/js/test1.js", AssetHandler::ASSET_TYPE_ALL);
     }
 
     public function testGetAssetPath() {
-        $jsDir = $this->getDirectory("js");
+        $public = $this->getDirectory("public");
+        $jsDir  = $this->getDirectory("js", $public);
         $this->assertEquals(
             $jsDir->url() . "/test1.js",
             $this->assetHandler->getAssetPath("assets/js/test1.js", AssetHandler::ASSET_TYPE_SCRIPT)
         );
     }
+
+    public function testSetAssetBasePathInvalidType() {
+        $this->setExpectedException(InvalidAssetTypeException::class, "The asset type test does not exist.");
+        $this->assetHandler->setAssetBasePath("/", "test");
+    }
+
+    public function testSetAssetBasePathInvalidDirectory() {
+
+        $this->setExpectedExceptionRegExp(
+            AssetNotFoundException::class,
+            "/The directory \".+\" does not exist./"
+        );
+        $this->assetHandler->setAssetBasePath("/asdasd/", AssetHandler::ASSET_TYPE_ALL);
+    }
+
+    public function testSetAssetBasePathTypeAllFileNotExists() {
+        // An asset is needed to be set.
+        $this->assetHandler->addScript("assets/js/test2.js");
+        $this->setExpectedExceptionRegExp(
+            AssetNotFoundException::class,
+            "/Asset path .+ could not be updated: The file with path .+ does not point to a valid file./"
+        );
+        // The private folder will contain assets in the right structure, but the "test2.js" asset
+        // wont exist in it.
+        $private = $this->getDirectory("private");
+        $this->assetHandler->setAssetBasePath($private->url(), AssetHandler::ASSET_TYPE_ALL);
+    }
+
+    public function testSetAssetBasePathTypeAll() {
+        $this->assertTrue($this->assetHandler->addScript("assets/js/test1.js"));
+        $this->assertTrue($this->assetHandler->addScript("assets/css/test1.css"));
+
+        // This should work, cause there are assets named as the above two in the "private" folder.
+        // Had there not been, the change would not work.
+        // The idea is that the user should only change asset part at startup in case they use another than the public
+        // directory. So this should never really happen in runtime.
+        $private = $this->getDirectory("private");
+        $this->assertTrue($this->assetHandler->setAssetBasePath($private->url()));
+    }
+
+    public function testSetAssetBasePathTypeNotAll() {
+
+        $this->assertTrue($this->assetHandler->addScript("assets/js/test1.js"));
+        $this->assertTrue($this->assetHandler->addScript("assets/css/test1.css"));
+
+        // This should work, cause there are assets named as the above two in the "private" folder.
+        // Had there not been, the change would not work.
+        // The idea is that the user should only change asset part at startup in case they use another than the public
+        // directory. So this should never really happen in runtime.
+        $private = $this->getDirectory("private");
+        $this->assertTrue($this->assetHandler->setAssetBasePath($private->url()), AssetHandler::ASSET_TYPE_SCRIPT);
+        $this->assertTrue($this->assetHandler->setAssetBasePath($private->url()), AssetHandler::ASSET_TYPE_STYLE_SHEET);
+
+    }
+
+    public function testGetAssetBasePathInvalidType() {
+        $this->setExpectedException(InvalidAssetTypeException::class, "The asset type noneexistant does not exist.");
+        $this->assetHandler->getAssetBasePath("noneexistant");
+
+    }
+
+    public function testGetAssetBasePathTypeAllPathsDiffer() {
+        $private = $this->getDirectory("private");
+        $this->assetHandler->setAssetBasePath($private->url(), AssetHandler::ASSET_TYPE_STYLE_SHEET);
+        $this->setExpectedException(
+            InvalidAssetTypeException::class,
+            "Can not fetch the asset base path: Assets base path differs."
+        );
+        $this->assetHandler->getAssetBasePath(AssetHandler::ASSET_TYPE_ALL);
+    }
+
+    public function testGetAssetBasePathPathsDiffer() {
+        $this->assetHandler->addScript("assets/js/test1.js");
+        $this->assetHandler->addScript("assets/css/test1.css");
+
+        $private = $this->getDirectory("private");
+        $public  = $this->getDirectory("public");
+        $this->assetHandler->setAssetBasePath($private->url(), AssetHandler::ASSET_TYPE_STYLE_SHEET);
+
+        $this->assertEquals(
+            $public->url() . "/", // Extra slash is added by the handler.
+            $this->assetHandler->getAssetBasePath(AssetHandler::ASSET_TYPE_SCRIPT)
+        );
+        $this->assertEquals(
+            $private->url() . "/",
+            $this->assetHandler->getAssetBasePath(AssetHandler::ASSET_TYPE_STYLE_SHEET)
+        );
+    }
+
+    public function testGetAssetBasePathAllPathsSame() {
+        $this->assetHandler->addScript("assets/js/test1.js");
+        $this->assetHandler->addScript("assets/css/test1.css");
+
+        $public = $this->getDirectory("public");
+
+        $this->assertEquals(
+            $public->url() . "/", // Extra slash is added by the handler.
+            $this->assetHandler->getAssetBasePath(AssetHandler::ASSET_TYPE_ALL)
+        );
+    }
+
+
+
 }
