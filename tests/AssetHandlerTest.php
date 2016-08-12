@@ -89,6 +89,8 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         return null;
     }
 
+    //region AddScript
+
     public function testAddScriptBadPath() {
         $this->setExpectedException(AssetNotFoundException::class);
         $this->assetHandler->addScript("js/test.js");
@@ -109,6 +111,10 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->assetHandler->addScript("assets/js/test2.js"));
     }
 
+    //endregion
+
+    //region AddStyle
+
     public function testAddStyleBadPath() {
         $this->setExpectedException(AssetNotFoundException::class);
         $this->assetHandler->addStyleSheet("css/test.css");
@@ -127,6 +133,10 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->assetHandler->addStyleSheet("assets/css/test1.css"));
         $this->assertTrue($this->assetHandler->addStyleSheet("assets/css/test2.css"));
     }
+
+    //endregion
+
+    //region GetAssetPath
 
     public function testGetAssetPathInvalidType() {
         $this->setExpectedException(InvalidAssetTypeException::class, "The asset type none does not exist.");
@@ -151,6 +161,10 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
             $this->assetHandler->getAssetPath("assets/js/test1.js", AssetHandler::ASSET_TYPE_SCRIPT)
         );
     }
+
+    //endregion
+
+    //region SetAssetBasePath
 
     public function testSetAssetBasePathInvalidType() {
         $this->setExpectedException(InvalidAssetTypeException::class, "The asset type test does not exist.");
@@ -206,6 +220,10 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    //endregion
+
+    //region GetAssetBasePath
+
     public function testGetAssetBasePathInvalidType() {
         $this->setExpectedException(InvalidAssetTypeException::class, "The asset type noneexistant does not exist.");
         $this->assetHandler->getAssetBasePath("noneexistant");
@@ -252,6 +270,118 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    //endregion
 
+    //region GetAssets
 
+    public function testGetAssetsInvalidAssetType() {
+        $this->setExpectedException(
+            InvalidAssetTypeException::class,
+            "The asset type test does not exist."
+        );
+        $this->assetHandler->getAssets("test");
+    }
+
+    public function testGetAssetsNoResult() {
+        $this->assertEmpty($this->assetHandler->getAssets());
+        $this->assertEmpty($this->assetHandler->getAssets(AssetHandler::ASSET_TYPE_ALL));
+        $this->assertEmpty($this->assetHandler->getAssets(AssetHandler::ASSET_TYPE_SCRIPT));
+        $this->assertEmpty($this->assetHandler->getAssets(AssetHandler::ASSET_TYPE_STYLE_SHEET));
+    }
+
+    public function testGetAssetsAll() {
+        $this->assetHandler->addScript("assets/js/test1.js");
+        $this->assetHandler->addScript("assets/js/test2.js");
+        $this->assetHandler->addStyleSheet("assets/css/test1.css");
+        $this->assetHandler->addStyleSheet("assets/css/test2.css");
+
+        $result = $this->assetHandler->getAssets();
+        $this->assertCount(4, $result);
+        $this->assertContains("assets/js/test1.js", $result);
+        $this->assertContains("assets/js/test2.js", $result);
+        $this->assertContains("assets/css/test1.css", $result);
+        $this->assertContains("assets/css/test2.css", $result);
+
+    }
+
+    public function testGetAssetsByType() {
+        $this->assetHandler->addScript("assets/js/test1.js");
+        $this->assetHandler->addScript("assets/js/test2.js");
+        $this->assetHandler->addStyleSheet("assets/css/test1.css");
+        $this->assetHandler->addStyleSheet("assets/css/test2.css");
+
+        $styles  = $this->assetHandler->getAssets(AssetHandler::ASSET_TYPE_STYLE_SHEET);
+        $scripts = $this->assetHandler->getAssets(AssetHandler::ASSET_TYPE_SCRIPT);
+        $this->assertCount(2, $styles);
+        $this->assertCount(2, $scripts);
+        $this->assertContains("assets/js/test1.js", $scripts);
+        $this->assertContains("assets/js/test2.js", $scripts);
+        $this->assertContains("assets/css/test1.css", $styles);
+        $this->assertContains("assets/css/test2.css", $styles);
+    }
+
+    //endregion
+
+    //region Scripts
+
+    public function testScriptsNoScripts() {
+        $this->assertEquals("",$this->assetHandler->scripts());
+    }
+
+    public function testScriptsOneScript() {
+        $this->assetHandler->addScript("assets/js/test1.js");
+        $this->assertEquals(
+            "<script type=\"text/javascript\" src=\"vfs://home/some/path/to/public/assets/js/test1.js\"></script>" .
+            PHP_EOL,
+            $this->assetHandler->scripts()
+        );
+    }
+
+    public function testScriptsMultipleScripts() {
+        $this->assetHandler->addScript("assets/js/test1.js");
+        $this->assetHandler->addScript("assets/js/test2.js");
+        $this->assertEquals(
+            '<script type="text/javascript" src="vfs://home/some/path/to/public/assets/js/test1.js"></script>' .
+            PHP_EOL .
+            '<script type="text/javascript" src="vfs://home/some/path/to/public/assets/js/test2.js"></script>' .
+            PHP_EOL,
+            $this->assetHandler->scripts()
+        );
+    }
+
+    //endregion
+
+    //region Styles
+
+    public function testStylesNoStyles() {
+        $this->assertEquals("",$this->assetHandler->styles());
+    }
+
+    public function testStylesOneStyle() {
+        $this->assetHandler->addStyleSheet("assets/css/test1.css");
+        $this->assertEquals(
+            '<link rel="stylesheet" href="vfs://home/some/path/to/public/assets/css/test1.css">' . PHP_EOL,
+            $this->assetHandler->styles()
+        );
+    }
+
+    public function testStylesMultipleStyles() {
+        $this->assetHandler->addStyleSheet("assets/css/test1.css");
+        $this->assetHandler->addStyleSheet("assets/css/test2.css");
+        $this->assertEquals(
+            '<link rel="stylesheet" href="vfs://home/some/path/to/public/assets/css/test1.css">' .
+            PHP_EOL .
+            '<link rel="stylesheet" href="vfs://home/some/path/to/public/assets/css/test2.css">' .
+            PHP_EOL,
+            $this->assetHandler->styles()
+        );
+    }
+
+    //endregion
+
+    //region SetUseVersioning
+
+    // TODO.
+
+    //endregion
 }
