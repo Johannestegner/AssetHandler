@@ -11,7 +11,7 @@ namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Contracts\AssetHandlerInterface;
 
-class AssetHandler implements AssetHandlerInterface{
+class AssetHandler /* implements AssetHandlerInterface  */ {
 
 
 }
