@@ -101,4 +101,22 @@ interface AssetHandlerInterface {
      * @return bool Result
      */
     public function removeContainer(string $containerName);
+
+    /**
+     * Set the base URL to a given container (or all).
+     *
+     * @param string $url URL to the public assets directory.
+     * @param string $container
+     * @return void
+     */
+    public function setBaseUrl(string $url = "/assets", string $container = AssetTypes::ANY);
+
+    /**
+     * Set the base path to a given container (or all).
+     *
+     * @param string $path Path to the assets folder.
+     * @param string $container
+     * @return void
+     */
+    public function setBasePath(string $path =  "public/assets", string $container = AssetTypes::ANY);
 }

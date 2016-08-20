@@ -134,6 +134,7 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
 
         $index = 0;
         foreach ($this->container as $asset) {
+            $this->assertInstanceOf(Asset::class, $asset);
             $index++;
         }
 
