@@ -7,6 +7,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Contracts;
 
+use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
+use Jite\AssetHandler\Exceptions\InvalidContainerException;
 use Jite\AssetHandler\Types\AssetTypes;
 
 interface AssetHandlerInterface {
@@ -16,12 +18,13 @@ interface AssetHandlerInterface {
      *
      * Observe:
      * If no container is specified the handler will add it to a predefined container depending on its file type.
-     * @see AssetTypes for predefined containers.
      *
      * @param string $asset Asset path excluding the base path for given container.
      * @param string $assetName Asset name, Optional, if no name, the path will be used as name.
      * @param string $container Container name.
-     * @return bool Result.
+     * @return bool
+     * @throws AssetNameNotUniqueException
+     * @throws InvalidContainerException
      */
     public function add(string $asset, string $assetName = "", string $container = AssetTypes::ANY) : bool;
 
@@ -35,9 +38,9 @@ interface AssetHandlerInterface {
      *
      * @param string $assetName Asset name or path.
      * @param string $container
-     * @return bool Result.
+     * @return bool
      */
-    public function remove(string $assetName, string $container = AssetTypes::ANY) : bool;
+    public function remove(string $assetName, string $container = AssetTypes::ANY);
 
     /**
      * Print a single asset as a HTML tag.

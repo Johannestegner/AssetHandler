@@ -1,10 +1,12 @@
 <?php
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-  AssetNotFoundException.php - Part of the AssetHandler project.
+  AssetNameNotUniqueException.php - Part of the AssetHandler project.
 
-  File created by Johannes Tegnér at 2016-08-09 - kl 20:15
+  File created by Johannes Tegnér at 2016-08-20 - kl 19:13
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Exceptions;
 
-class AssetNotFoundException extends \Exception { }
+use Exception;
+
+class AssetNameNotUniqueException extends Exception { }
