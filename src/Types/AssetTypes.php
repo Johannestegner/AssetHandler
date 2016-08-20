@@ -15,6 +15,7 @@ final class AssetTypes {
 
     const SCRIPT      = "script";
     const STYLE_SHEET = "style sheet";
+    const IMAGE       = "image";
     const ANY         = "any";
 
     private static $cache          = array();
