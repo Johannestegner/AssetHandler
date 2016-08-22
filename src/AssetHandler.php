@@ -11,6 +11,7 @@ namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Contracts\AssetHandlerInterface;
 use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
+use Jite\AssetHandler\Exceptions\InvalidAssetException;
 use Jite\AssetHandler\Exceptions\InvalidContainerException;
 use Jite\AssetHandler\Types\AssetTypes;
 
@@ -92,7 +93,6 @@ class AssetHandler implements AssetHandlerInterface {
             throw new AssetNameNotUniqueException($msg);
         }
 
-
         $this->containers[$container]->add(new Asset($container, $asset, $assetName));
 
         return true;
@@ -109,9 +109,77 @@ class AssetHandler implements AssetHandlerInterface {
      * @param string $assetName Asset name or path.
      * @param string $container
      * @return bool
+     * @throws AssetNameNotUniqueException
+     * @throws InvalidAssetException
+     * @throws InvalidContainerException
      */
     public function remove(string $assetName, string $container = AssetTypes::ANY) {
-        // TODO: Implement remove() method.
+
+
+        if ($container === AssetTypes::ANY && str_contains($assetName, ".")) {
+            $container = $this->determineContainer($assetName);
+
+            if ($container === "") {
+                $msg = sprintf(
+                    'Failed to remove asset with name "%s". The asset container could not be determined from file type.'
+                    , $assetName
+                );
+                throw new InvalidAssetException($msg);
+            }
+        } else if ($container === AssetTypes::ANY) {
+            // Not possible to determine a filename from a file without a file type (no dot!), so
+            // make sure that the asset does not exist in multiple containers before removing any.
+            // Check only predefined, if not in one of those, just skip it and blow up!
+            $types = array_filter(AssetTypes::getTypes(), function(string $type) {
+                return $type !== AssetTypes::ANY;
+            });
+
+            $container = null;
+            $out       = array_where($types, function(int $index) use($assetName, $types, &$container) {
+
+                $exists = $this->containers[$types[$index]]->find(function(Asset $asset) use($assetName) {
+                    $result = $asset->getName() === $assetName;
+                    return $result;
+                });
+
+                if ($exists) {
+                    $container = $types[$index];
+                    return true;
+                }
+                return false;
+            });
+
+            if (count($out) > 1) {
+                $msg = sprintf(
+                    'Failed to remove asset with name "%s". ' .
+                    'Due to none unique name, the container name is required for this operation.',
+                    $assetName
+                );
+                throw new AssetNameNotUniqueException($msg);
+            } else if (count($out) <= 0) {
+                return false;
+            }
+        }
+
+        if (!$this->containerExists($container)) {
+            $msg = sprintf(
+                'Failed to remove asset with name "%s". The container (%s) does not exist.',
+                $assetName,
+                $container
+            );
+            throw new InvalidContainerException($msg);
+        }
+
+        $has = $this->containers[$container]->find(function(Asset $asset) use($assetName) {
+            $res = $asset->getPath() === $assetName;
+            return $res;
+        }) ?? $this->containers[$container]->find(function(Asset $asset) use($assetName) {
+            $res = $asset->getName() === $assetName;
+            return $res;
+        });
+
+        $res = $has === null ? false : $this->containers[$container]->remove($has);
+        return $res;
     }
 
     /**
@@ -145,14 +213,37 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Fetch all assets as a merged array of strings (full path).
+     * Fetch all assets as a merged array of strings (full url).
      * If container is specified, only that containers assets will be returned.
      *
      * @param string $container
      * @return array
      */
     public function getAssets(string $container = AssetTypes::ANY) : array {
-        // TODO: Implement getAssets() method.
+        $containers = array();
+        if ($container === AssetTypes::ANY) {
+
+            foreach (AssetTypes::getTypes() as $type) {
+                if ($type === AssetTypes::ANY) {
+                    continue;
+                }
+
+                $containers[] = $type;
+            }
+        } else {
+            $containers[] = $container;
+        }
+
+        $result = array();
+        foreach ($containers as $containerName) {
+            $container = $this->containers[$containerName];
+            foreach ($container->getIterator() as $asset) {
+                /** @var $asset Asset */
+                $result[] = $asset->getFullPath();
+            }
+        }
+
+        return $result;
     }
 
     /**

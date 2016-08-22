@@ -9,6 +9,7 @@
 namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
+use Jite\AssetHandler\Exceptions\InvalidAssetException;
 use Jite\AssetHandler\Exceptions\InvalidContainerException;
 use Jite\AssetHandler\Types\AssetTypes;
 use PHPUnit_Framework_TestCase;
@@ -20,7 +21,11 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->handler = new AssetHandler();
+        $this->handler->setBaseUrl();
+        $this->handler->setBasePath();
     }
+
+    //region AssetHandler::add
 
     public function testAddWithNameAndContainer() {
         $this->assertTrue($this->handler->add("test.js", "test", AssetTypes::SCRIPT));
@@ -76,5 +81,108 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->handler->add("test4.js", "test4", AssetTypes::SCRIPT));
         $this->assertTrue($this->handler->add("test1.js", "test5", AssetTypes::SCRIPT));
     }
+
+    //endregion
+
+    //region AssetHandler::remove
+
+    public function testRemoveAssetNoAsset() {
+        $this->assertFalse($this->handler->remove("asset.js", AssetTypes::SCRIPT));
+    }
+
+    public function testRemoveAssetOneAssetByName() {
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->assertCount(1, $this->handler->getAssets(AssetTypes::SCRIPT));
+        $this->assertTrue($this->handler->remove("test", AssetTypes::SCRIPT));
+        $this->assertCount(0, $this->handler->getAssets(AssetTypes::SCRIPT));
+    }
+
+    public function testRemoveAssetOneAssetByPath() {
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->assertCount(1, $this->handler->getAssets(AssetTypes::SCRIPT));
+        $this->assertTrue($this->handler->remove("test.js", AssetTypes::SCRIPT));
+        $this->assertCount(0, $this->handler->getAssets(AssetTypes::SCRIPT));
+    }
+
+    public function testRemoveAssetMultipleAssetsByName() {
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("test2.js", "test2", AssetTypes::SCRIPT);
+        $this->handler->add("test3.js", "test3", AssetTypes::SCRIPT);
+        $this->assertCount(3, $this->handler->getAssets(AssetTypes::SCRIPT));
+        $this->assertTrue($this->handler->remove("test2", AssetTypes::SCRIPT));
+        $this->assertCount(2, $this->handler->getAssets(AssetTypes::SCRIPT));
+
+        foreach ($this->handler->getAssets(AssetTypes::SCRIPT) as $asset) {
+            $this->assertNotEquals($asset, "/assets/test2.js"); // the asset string is the path.
+        }
+    }
+
+    public function testRemoveAssetMultipleAssetsByPath() {
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("test2.js", "test2", AssetTypes::SCRIPT);
+        $this->handler->add("test3.js", "test3", AssetTypes::SCRIPT);
+        $this->assertCount(3, $this->handler->getAssets(AssetTypes::SCRIPT));
+        $this->assertTrue($this->handler->remove("test2.js", AssetTypes::SCRIPT));
+        $this->assertCount(2, $this->handler->getAssets(AssetTypes::SCRIPT));
+
+        foreach ($this->handler->getAssets(AssetTypes::SCRIPT) as $asset) {
+            $this->assertNotEquals($asset, "/assets/test2.js"); // the asset string is the path.
+        }
+    }
+
+    public function testRemoveAssetWithoutContainerNameOneWithName() {
+
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("test.css", "test2", AssetTypes::STYLE_SHEET);
+        $this->assertCount(2, $this->handler->getAssets());
+        $this->assertTrue($this->handler->remove("test"));
+        $this->assertCount(1, $this->handler->getAssets());
+
+    }
+
+    public function testRemoveAssetWithoutContainerNameMultipleWithName() {
+
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("test.css", "test", AssetTypes::STYLE_SHEET);
+        $this->assertCount(2, $this->handler->getAssets());
+        $this->setExpectedException(
+            AssetNameNotUniqueException::class,
+            'Failed to remove asset with name "test". ' .
+            'Due to none unique name, the container name is required for this operation.');
+        $this->assertTrue($this->handler->remove("test"));
+    }
+
+    public function testRemoveAssetWithBadAssetName() {
+
+        $this->handler->add("test.css", "test", AssetTypes::STYLE_SHEET);
+        $this->assertFalse($this->handler->remove("testz"));
+        $this->assertFalse($this->handler->remove("testz", AssetTypes::STYLE_SHEET));
+        $this->assertFalse($this->handler->remove("testz.js", AssetTypes::STYLE_SHEET));
+    }
+
+    public function testRemoveAssetWithBadContainerName() {
+
+        $this->setExpectedException(
+            InvalidContainerException::class,
+            'Failed to remove asset with name "test.js". The container (abcdef) does not exist.');
+        $this->handler->remove("test.js", "abcdef");
+    }
+
+    public function testRemoveAssetWithUnknownFileTypeFail() {
+        $this->setExpectedException(
+            InvalidAssetException::class,
+            'Failed to remove asset with name "test.sds". The asset container could not be determined from file type.');
+        $this->handler->remove("test.sds");
+    }
+
+    public function testRemoveAssetWithUnknownFileTypeSuccess() {
+        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("test2.css", "test2", AssetTypes::STYLE_SHEET);
+
+        $this->assertTrue($this->handler->remove("test.js"));
+        $this->assertCount(1, $this->handler->getAssets());
+    }
+
+    //endregion
 
 }

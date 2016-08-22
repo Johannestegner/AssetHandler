@@ -8,6 +8,7 @@
 namespace Jite\AssetHandler\Contracts;
 
 use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
+use Jite\AssetHandler\Exceptions\InvalidAssetException;
 use Jite\AssetHandler\Exceptions\InvalidContainerException;
 use Jite\AssetHandler\Types\AssetTypes;
 
@@ -39,6 +40,9 @@ interface AssetHandlerInterface {
      * @param string $assetName Asset name or path.
      * @param string $container
      * @return bool
+     * @throws AssetNameNotUniqueException
+     * @throws InvalidAssetException
+     * @throws InvalidContainerException
      */
     public function remove(string $assetName, string $container = AssetTypes::ANY);
 
@@ -69,7 +73,7 @@ interface AssetHandlerInterface {
     public function printAll(string $container = AssetTypes::ANY) : string;
 
     /**
-     * Fetch all assets as a merged array of strings (full path).
+     * Fetch all assets as a merged array of strings (full url).
      * If container is specified, only that containers assets will be returned.
      *
      * @param string $container

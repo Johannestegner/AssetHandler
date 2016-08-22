@@ -92,7 +92,8 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
      * @since 5.0.0
      */
     public function getIterator() {
-        return new ArrayIterator($this->innerContainer);
+        $iterator = new ArrayIterator($this->innerContainer);
+        return $iterator;
     }
 
     /**
