@@ -185,4 +185,71 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     //endregion
 
+    //region AssetHandler::print
+
+    public function testPrintNoAsset() {
+        $this->assertEquals(
+            $this->handler->print("none.js", AssetTypes::SCRIPT),
+            "<!-- Failed to fetch asset (none.js) -->"
+        );
+
+        $this->assertEquals(
+            $this->handler->print("none.js"),
+            "<!-- Failed to fetch asset (none.js) -->"
+        );
+    }
+
+    public function testPrintWithAssetAndContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            $this->handler->print("test", AssetTypes::SCRIPT),
+            '<script src="/assets/js/test.js" type="application/javascript"><script>'
+        );
+    }
+
+    public function testPrintWithAssetNoContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            $this->handler->print("test"),
+            '<script src="/assets/js/test.js" type="application/javascript"><script>'
+        );
+    }
+
+    public function testPrintWithAssetAndContainerCustomString() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            $this->handler->print(
+                "test",
+                AssetTypes::SCRIPT,
+                '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
+            ),
+            '<script src="/assets/js/test.js" type="application/javascript">var a = "test";</script>'
+        );
+    }
+
+    public function testPrintNoAssetAndCustomString() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            $this->handler->print(
+                "test",
+                AssetTypes::SCRIPT,
+                '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
+            ),
+            '"<!-- Failed to fetch asset (/assets/js/test.js) -->"'
+        );
+
+    }
+
+    //endregion
+
+    //region AssetHandler::printAll
+
+    public function testPrintAllOneAssetAndContainer() {}
+    public function testPrintAllOneAssetNoContainer() {}
+    public function testPrintAllMultiAssetAndContainer() {}
+    public function testPrintAllMultiAssetNoContainer() {}
+    public function testPrintAllNoAssets() {}
+
+    //endregion
+
 }
