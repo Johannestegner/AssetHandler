@@ -33,8 +33,7 @@ interface AssetHandlerInterface {
      * Remove an asset from the handler.
      *
      * Observe:
-     * If no container is specified the handler will try to remove it
-     * from a predefined container based on the file type.
+     * If no container is specified the handler will try to remove it from a predefined container based on file type.
      * If no asset is found in the predefined container, none will be removed.
      *
      * @param string $assetName Asset name or path.
@@ -49,17 +48,28 @@ interface AssetHandlerInterface {
     /**
      * Print a single asset as a HTML tag.
      *
-     * The handler will try to determine what type of tag to use by file type/container.
+     * The handler will try to determine what type of tag to use by file type if no container is supplied.
      * The predefined containers (ex. Script and Style sheet) will use the standard tags.
+     * If no asset is found in any container, a HTML comment will be produced instead:
+     * <!-- Failed to fetch asset (/asset/path) -->
      *
      * Observe:
      * Even though the container parameter is not required, it will be a faster lookup if the container is defined,
      * if it is not defined, the handler will look through all containers for the given asset.
      *
+     * Custom Tag:
+     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
+     * NAME and PATH.
+     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
+     * <script src="{{PATH}}"></script>
+     * Will print:
+     * <script src="/some/path/to/file.js"></script>
+     *
      * @param string $assetName Name of the asset or the asset path.
      * @param string $container Container for quicker access.
-     * @param string $custom Custom tag format in printf format, strings passed will be: 1 asset url, 2 asset name.
+     * @param string $custom Custom tag.
      * @return string HTML formatted tag
+     * @throws InvalidContainerException
      */
     public function print(string $assetName, string $container = AssetTypes::ANY, string $custom = "") : string;
 
@@ -73,13 +83,23 @@ interface AssetHandlerInterface {
     public function printAll(string $container = AssetTypes::ANY) : string;
 
     /**
-     * Fetch all assets as a merged array of strings (full url).
-     * If container is specified, only that containers assets will be returned.
+     * Fetch all assets as a merged array of Asset objects.
+     * If container is specified, only that containers assets will be returned, else all.
      *
+     * @internal
      * @param string $container
-     * @return array
+     * @return AssetInterface[]|array
      */
     public function getAssets(string $container = AssetTypes::ANY) : array;
+
+    /**
+     * Fetch all assets paths as a merged array.
+     * If container is specified, only that containers assets will be returned, else all.
+     *
+     * @param string $container
+     * @return string[]|array
+     */
+    public function getAssetPaths(string $container = AssetTypes::ANY) : array;
 
     /**
      * Set a container (or all if non is passed) to use versioning.
@@ -95,11 +115,19 @@ interface AssetHandlerInterface {
      * Create a custom container.
      * The container will use the supplied tag format when creating a HTML tag.
      *
+     * Custom Tag:
+     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
+     * NAME and PATH.
+     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
+     * <script src="{{PATH}}"></script>
+     * Will print:
+     * <script src="/some/path/to/file.js"></script>
+     *
      * @param string $containerName Unique name for the new container.
-     * @param string $tagFormat Tag format string in printf format, strings passed will be: 1 asset url, 2 asset name.
+     * @param string $customTag Custom tag (see docs above).
      * @return bool Result
      */
-    public function addContainer(string $containerName, string $tagFormat) : bool;
+    public function addContainer(string $containerName, string $customTag) : bool;
 
     /**
      * Remove a custom container (the predefined containers will not be possible to remove).
