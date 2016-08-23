@@ -147,4 +147,14 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
         }
         return -1;
     }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray() {
+        return $this->innerContainer;
+    }
+
 }

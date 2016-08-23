@@ -120,10 +120,7 @@ class AssetHandler implements AssetHandlerInterface {
             throw new InvalidContainerException($msg);
         }
 
-        $exists = $this->containers[$container]->find(function(Asset $asset) use($assetName) {
-            $result = $asset->getName() === $assetName;
-            return $result;
-        });
+        $exists = $this->findAssetByName($assetName, [$container]);
 
         if ($exists !== null) {
             $msg = sprintf("An asset with the name %s already exists in the container (%s)", $assetName, $container);
@@ -152,7 +149,6 @@ class AssetHandler implements AssetHandlerInterface {
      */
     public function remove(string $assetName, string $container = AssetTypes::ANY) {
 
-
         if ($container === AssetTypes::ANY && str_contains($assetName, ".")) {
             $container = $this->determineContainer($assetName);
 
@@ -172,28 +168,22 @@ class AssetHandler implements AssetHandlerInterface {
             });
 
             $container = null;
-            $out       = array_where($types, function(int $index) use($assetName, $types, &$container) {
-
-                $exists = $this->containers[$types[$index]]->find(function(Asset $asset) use($assetName) {
-                    $result = $asset->getName() === $assetName;
-                    return $result;
-                });
-
-                if ($exists) {
-                    $container = $types[$index];
-                    return true;
+            $count     = 0;
+            foreach ($types as $type) {
+                if ($this->findAssetByName($assetName, [$type])) {
+                    $container = $type;
+                    $count++;
                 }
-                return false;
-            });
+            }
 
-            if (count($out) > 1) {
+            if ($count > 1) {
                 $msg = sprintf(
                     'Failed to remove asset with name "%s". ' .
                     'Due to none unique name, the container name is required for this operation.',
                     $assetName
                 );
                 throw new AssetNameNotUniqueException($msg);
-            } else if (count($out) <= 0) {
+            } else if ($count <= 0) {
                 return false;
             }
         }
@@ -207,35 +197,8 @@ class AssetHandler implements AssetHandlerInterface {
             throw new InvalidContainerException($msg);
         }
 
-        $has = $this->containers[$container]->find(function(Asset $asset) use($assetName) {
-            $res = $asset->getPath() === $assetName;
-            return $res;
-        }) ?? $this->containers[$container]->find(function(Asset $asset) use($assetName) {
-            $res = $asset->getName() === $assetName;
-            return $res;
-        });
-
-        $res = $has === null ? false : $this->containers[$container]->remove($has);
-        return $res;
-    }
-
-    /**
-     * Print a single asset as a HTML tag.
-     *
-     * The handler will try to determine what type of tag to use by file type/container.
-     * The predefined containers (ex. Script and Style sheet) will use the standard tags.
-     *
-     * Observe:
-     * Even though the container parameter is not required, it will be a faster lookup if the container is defined,
-     * if it is not defined, the handler will look through all containers for the given asset.
-     *
-     * @param string $assetName Name of the asset or the asset path.
-     * @param string $container Container for quicker access.
-     * @param string $custom Custom tag format in printf format, strings passed will be: 1 asset url, 2 asset name.
-     * @return string HTML formatted tag
-     */
-    public function print(string $assetName, string $container = AssetTypes::ANY, string $custom = "") : string {
-        // TODO: Implement print() method.
+        $has = $this->findAssetByPath($assetName, [$container]) ?? $this->findAssetByName($assetName, [$container]);
+        return $has === null ? false : $this->containers[$container]->remove($has);
     }
 
     /**
@@ -250,37 +213,28 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Fetch all assets as a merged array of strings (full url).
-     * If container is specified, only that containers assets will be returned.
+     * Fetch all assets as a merged array of Asset objects.
+     * If container is specified, only that containers assets will be returned, else all.
      *
+     * @internal
      * @param string $container
-     * @return array
+     * @return Asset[]|array
      */
     public function getAssets(string $container = AssetTypes::ANY) : array {
-        $containers = array();
+        $containers = [];
+
         if ($container === AssetTypes::ANY) {
-
-            foreach (AssetTypes::getTypes() as $type) {
-                if ($type === AssetTypes::ANY) {
-                    continue;
-                }
-
-                $containers[] = $type;
-            }
+            $containers = array_filter(AssetTypes::getTypes(), function(string $type) {
+                return $type !== AssetTypes::ANY;
+            });
+            $containers = array_map(function(string $container) {
+                return $this->containers[$container]->toArray();
+            }, $containers);
         } else {
-            $containers[] = $container;
+            $containers[] = $this->containers[$container]->toArray();
         }
 
-        $result = array();
-        foreach ($containers as $containerName) {
-            $container = $this->containers[$containerName];
-            foreach ($container->getIterator() as $asset) {
-                /** @var $asset Asset */
-                $result[] = $asset->getFullPath();
-            }
-        }
-
-        return $result;
+        return array_merge(... $containers);
     }
 
     /**
@@ -293,18 +247,6 @@ class AssetHandler implements AssetHandlerInterface {
      */
     public function setIsUsingVersioning(bool $state, string $container = AssetTypes::ANY) {
         // TODO: Implement setIsUsingVersioning() method.
-    }
-
-    /**
-     * Create a custom container.
-     * The container will use the supplied tag format when creating a HTML tag.
-     *
-     * @param string $containerName Unique name for the new container.
-     * @param string $tagFormat Tag format string in printf format, strings passed will be: 1 asset url, 2 asset name.
-     * @return bool Result
-     */
-    public function addContainer(string $containerName, string $tagFormat) : bool {
-        // TODO: Implement addContainer() method.
     }
 
     /**
@@ -337,5 +279,89 @@ class AssetHandler implements AssetHandlerInterface {
      */
     public function setBasePath(string $path = "public/assets", string $container = AssetTypes::ANY) {
         // TODO: Implement setBasePath() method.
+    }
+
+    /**
+     * Fetch all assets paths as a merged array.
+     * If container is specified, only that containers assets will be returned, else all.
+     *
+     * @param string $container
+     * @return string[]|array
+     */
+    public function getAssetPaths(string $container = AssetTypes::ANY) : array {
+        // TODO: Implement getAssetPaths() method.
+    }
+
+    /**
+     * Print a single asset as a HTML tag.
+     *
+     * The handler will try to determine what type of tag to use by file type if no container is supplied.
+     * The predefined containers (ex. Script and Style sheet) will use the standard tags.
+     * If no asset is found in any container, a HTML comment will be produced instead:
+     * <!-- Failed to fetch asset (/asset/path) -->
+     *
+     * Observe:
+     * Even though the container parameter is not required, it will be a faster lookup if the container is defined,
+     * if it is not defined, the handler will look through all containers for the given asset.
+     *
+     * Custom Tag:
+     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
+     * NAME and PATH.
+     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
+     * <script src="{{PATH}}"></script>
+     * Will print:
+     * <script src="/some/path/to/file.js"></script>
+     *
+     * @param string $assetName Name of the asset or the asset path.
+     * @param string $container Container for quicker access.
+     * @param string $custom Custom tag.
+     * @return string HTML formatted tag
+     * @throws InvalidContainerException
+     */
+    public function print(string $assetName, string $container = AssetTypes::ANY, string $custom = "") : string {
+        $containers = [];
+
+        if ($container === AssetTypes::ANY) {
+            $containers = array_filter(AssetTypes::getTypes(), function(string $type) {
+                return $type !== AssetTypes::ANY;
+            });
+        } else {
+            $containers[] = $container;
+        }
+
+        // Check each container in the array and try find asset by name.
+
+        $exists = $this->findAssetByName($assetName, $containers) ?? $this->findAssetByPath($assetName, $containers);
+
+        if (!$exists) {
+            return "<!-- Failed to fetch asset ({$assetName}) -->";
+        }
+
+
+
+
+
+
+
+    }
+
+    /**
+     * Create a custom container.
+     * The container will use the supplied tag format when creating a HTML tag.
+     *
+     * Custom Tag:
+     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
+     * NAME and PATH.
+     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
+     * <script src="{{PATH}}"></script>
+     * Will print:
+     * <script src="/some/path/to/file.js"></script>
+     *
+     * @param string $containerName Unique name for the new container.
+     * @param string $customTag Custom tag (see docs above).
+     * @return bool Result
+     */
+    public function addContainer(string $containerName, string $customTag) : bool {
+        // TODO: Implement addContainer() method.
     }
 }
