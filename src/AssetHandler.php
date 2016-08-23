@@ -52,6 +52,43 @@ class AssetHandler implements AssetHandlerInterface {
         return "";
     }
 
+    /**
+     * @param string $assetName
+     * @param        $containers
+     * @return Asset|null
+     */
+    private function findAssetByName(string $assetName, $containers) {
+        foreach ($containers as $cType) {
+            $result = $this->containers[$cType]->find(function(Asset $asset) use($assetName) {
+                $result = $asset->getName() === $assetName;
+                return $result;
+            });
+
+            if ($result !== null) {
+                return $result;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param string $assetPath
+     * @param        $containers
+     * @return Asset|null
+     */
+    private function findAssetByPath(string $assetPath, $containers) {
+        foreach ($containers as $cType) {
+            $result = $this->containers[$cType]->find(function(Asset $asset) use($assetPath) {
+                $result = $asset->getPath() === $assetPath;
+                return $result;
+            });
+
+            if ($result !== null) {
+                return $result;
+            }
+        }
+        return null;
+    }
 
     /**
      * Add an asset to the handler.
