@@ -7,6 +7,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Contracts;
 
+/**
+ * @internal
+ */
 interface AssetContainerInterface {
 
     /**
@@ -18,9 +21,9 @@ interface AssetContainerInterface {
     public function add(AssetInterface $asset) : bool;
 
     /**
-     * Remove an asset.
+     * Remove an asset by name or path.
      *
-     * @param AssetInterface $asset
+     * @param AssetInterface|string $asset
      * @return bool
      */
     public function remove(AssetInterface $asset) : bool;
@@ -47,5 +50,22 @@ interface AssetContainerInterface {
      * @return bool
      */
     public function exists(AssetInterface $asset) : bool;
+
+    /**
+     * Get the base path of all assets in the container.
+     *
+     * @internal Should only be used by the Asset when fetching full URL.
+     * @return string
+     */
+    public function getBaseUrl() : string;
+
+    /**
+     * Set the base path of all assets in the container.
+     *
+     * @internal Should only be used by the asset handler.
+     * @param string $baseUrl
+     * @return void
+     */
+    public function setBaseUrl(string $baseUrl);
 
 }

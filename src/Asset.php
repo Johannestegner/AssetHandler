@@ -7,8 +7,12 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler;
 
+use Jite\AssetHandler\Contracts\AssetContainerInterface;
 use Jite\AssetHandler\Contracts\AssetInterface;
 
+/**
+ * @internal
+ */
 class Asset implements AssetInterface {
 
     /** @var string */
@@ -20,16 +24,21 @@ class Asset implements AssetInterface {
     /** @var string */
     private $name;
 
-    /**
-     * @param string $type
-     * @param string $path
-     * @param string $name
-     */
-    public function __construct(string $type, string $path, string $name) {
+    /** @var AssetContainerInterface */
+    private $container;
 
-        $this->type = $type;
-        $this->path = $path;
-        $this->name = $name;
+    /**
+     * @param $type string
+     * @param $path string
+     * @param $name string
+     * @param $container AssetContainerInterface|null
+     */
+    public function __construct(string $type, string $path, string $name, AssetContainerInterface $container = null) {
+
+        $this->type      = $type;
+        $this->path      = $path;
+        $this->name      = $name;
+        $this->container = $container;
     }
 
     /**
@@ -50,16 +59,19 @@ class Asset implements AssetInterface {
         return $this->name;
     }
 
-    /**
-     * Full path of the asset, including name.
-     *
-     * @return string
-     */
-    public function getFullPath() : string {
-        if (substr($this->path, -1) !== "/" || substr($this->path, -1) !== "\\") {
-            return $this->path . "/" . $this->name;
+    public function getFullUrl() {
+        $baseUrl = $this->container->getBaseUrl();
+        $prep    = $this->getPath();
+
+        if (substr($baseUrl, -1) !== "/" || substr($baseUrl, -1) !== "\\") {
+            $baseUrl .= "/";
         }
-        return $this->path . $this->name;
+
+        if (substr($prep, 0, 1) === "/" || substr($prep, 0, 1) === "\\") {
+            $prep = substr($prep, 1);
+        }
+
+        return $baseUrl . $prep;
     }
 
     /**
@@ -69,5 +81,23 @@ class Asset implements AssetInterface {
      */
     public function getType() : string {
         return $this->type;
+    }
+
+    /**
+     * Fetch the parent container.
+     *
+     * @return AssetContainerInterface|null
+     */
+    public function getContainer() {
+        return $this->container;
+    }
+
+    /**
+     * Set parent container.
+     *
+     * @param AssetContainerInterface $container
+     */
+    public function setContainer(AssetContainerInterface $container) {
+        $this->container = $container;
     }
 }

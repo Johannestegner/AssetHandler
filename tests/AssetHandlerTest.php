@@ -21,8 +21,8 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->handler = new AssetHandler();
-        $this->handler->setBaseUrl();
-        $this->handler->setBasePath();
+        $this->handler->setBaseUrl("/assets/");
+        $this->handler->setBasePath("/public/assets/");
     }
 
     //region AssetHandler::add
@@ -190,12 +190,12 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     public function testPrintNoAsset() {
         $this->assertEquals(
             $this->handler->print("none.js", AssetTypes::SCRIPT),
-            "<!-- Failed to fetch asset (none.js) -->"
+            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL
         );
 
         $this->assertEquals(
             $this->handler->print("none.js"),
-            "<!-- Failed to fetch asset (none.js) -->"
+            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL
         );
     }
 
@@ -203,7 +203,7 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
         $this->assertEquals(
             $this->handler->print("test", AssetTypes::SCRIPT),
-            '<script src="/assets/js/test.js" type="application/javascript"><script>'
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL
         );
     }
 
@@ -211,7 +211,7 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
         $this->assertEquals(
             $this->handler->print("test"),
-            '<script src="/assets/js/test.js" type="application/javascript"><script>'
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL
         );
     }
 
@@ -223,22 +223,34 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
                 AssetTypes::SCRIPT,
                 '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
             ),
-            '<script src="/assets/js/test.js" type="application/javascript">var a = "test";</script>'
+            '<script src="/assets/js/test.js" type="application/javascript">var a = "test";</script>' . PHP_EOL
         );
     }
 
     public function testPrintNoAssetAndCustomString() {
-        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
         $this->assertEquals(
             $this->handler->print(
                 "test",
                 AssetTypes::SCRIPT,
                 '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
             ),
-            '"<!-- Failed to fetch asset (/assets/js/test.js) -->"'
+            '<!-- Failed to fetch asset (test) -->' . PHP_EOL
         );
 
     }
+
+    public function testPrintPredefinedImage() {
+
+    }
+
+    public function testPrintPredefinedScript() {
+
+    }
+
+    public function testPrintPredefinedStyle() {
+
+    }
+
 
     //endregion
 

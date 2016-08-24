@@ -27,9 +27,4 @@ class AssetTest extends PHPUnit_Framework_TestCase {
 
     }
 
-    public function testGetFullPath() {
-        $asset = new Asset("javascript", "/assets/js", "file.js");
-        $this->assertEquals("/assets/js/file.js", $asset->getFullPath());
-    }
-
 }

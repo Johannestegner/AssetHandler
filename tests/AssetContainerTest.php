@@ -15,7 +15,7 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     protected $container;
 
     public function setUp() {
-        $this->container = new AssetContainer();
+        $this->container = new AssetContainer("/assets");
     }
 
     public function testAddOne() {
@@ -139,5 +139,14 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
         }
 
         $this->assertEquals($this->container->count(), $index);
+    }
+
+    public function testGetBaseUrl() {
+        $this->assertEquals("/assets", $this->container->getBaseUrl());
+    }
+
+    public function testSetBaseUrl() {
+        $this->container->setBaseUrl("/passets");
+        $this->assertEquals("/passets", $this->container->getBaseUrl());
     }
 }

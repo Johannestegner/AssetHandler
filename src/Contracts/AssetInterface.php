@@ -7,6 +7,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Contracts;
 
+/**
+ * @internal
+ */
 interface AssetInterface {
 
     /**
@@ -31,9 +34,15 @@ interface AssetInterface {
     public function getName() : string;
 
     /**
-     * Full path of the asset, including name.
+     * Fetch the parent container.
      *
-     * @return string
+     * @return AssetContainerInterface|null
      */
-    public function getFullPath() : string;
+    public function getContainer();
+
+    /**
+     * @param AssetContainerInterface $container
+     * @return void
+     */
+    public function setContainer(AssetContainerInterface $container);
 }

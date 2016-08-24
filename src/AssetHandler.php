@@ -17,10 +17,21 @@ use Jite\AssetHandler\Types\AssetTypes;
 
 class AssetHandler implements AssetHandlerInterface {
 
+
+    // Should later be removed and replaced with a config.
     private $knownTypes = array(
-        AssetTypes::STYLE_SHEET => "/\\.css$/i",
-        AssetTypes::SCRIPT => "/\\.js$/i",
-        AssetTypes::IMAGE => "/\\.(jpg|jpeg|tiff|gif|png|bmp|ico)$/i"
+        AssetTypes::STYLE_SHEET => [
+            "regex"        => "/\\.css$/i",
+            "print_string" => '<link rel="stylesheet" type="text/css" href="{{PATH}}">'
+        ],
+        AssetTypes::SCRIPT => [
+            "regex"        => "/\\.js$/i",
+            "print_string" => '<script src="{{PATH}}" type="application/javascript"></script>'
+        ],
+        AssetTypes::IMAGE => [
+            "regex"        => "/\\.(jpg|jpeg|tiff|gif|png|bmp|ico)$/i",
+            "print_string" => '<img src="{{PATH}}">'
+        ]
     );
 
     /** @var AssetContainer[] */
@@ -44,8 +55,8 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     private function determineContainer(string $fileName) : string {
-        foreach ($this->knownTypes as $type => $pattern) {
-            if (preg_match($pattern, $fileName) === 1) {
+        foreach ($this->knownTypes as $type => $data) {
+            if (preg_match($data['regex'], $fileName) === 1) {
                 return $type;
             }
         }
@@ -128,7 +139,6 @@ class AssetHandler implements AssetHandlerInterface {
         }
 
         $this->containers[$container]->add(new Asset($container, $asset, $assetName));
-
         return true;
     }
 
@@ -322,22 +332,40 @@ class AssetHandler implements AssetHandlerInterface {
         $containers = [];
 
         if ($container === AssetTypes::ANY) {
-            $containers = array_filter(AssetTypes::getTypes(), function(string $type) {
-                return $type !== AssetTypes::ANY;
-            });
+            // Try determine container.
+            $container = $this->determineContainer($assetName);
+            if (!$container) {
+                $containers = array_filter(AssetTypes::getTypes(), function(string $type) {
+                    return $type !== AssetTypes::ANY;
+                });
+            } else {
+                $containers[] = $container;
+            }
         } else {
             $containers[] = $container;
         }
+
+
 
         // Check each container in the array and try find asset by name.
 
         $exists = $this->findAssetByName($assetName, $containers) ?? $this->findAssetByPath($assetName, $containers);
 
         if (!$exists) {
-            return "<!-- Failed to fetch asset ({$assetName}) -->";
+            return "<!-- Failed to fetch asset ({$assetName}) -->" . PHP_EOL;
         }
 
+        $pattern = $custom;
+        if ($pattern === "") {
+            if (array_key_exists($exists->getType(), $this->knownTypes)) {
+                $pattern = $this->knownTypes[$exists->getType()]["print_string"];
+            } else {
+                throw new InvalidContainerException("The container got no pattern to print.");
+            }
+        }
 
+        $pattern = str_replace("{{PATH}}", $exists->getFullUrl(), $pattern);
+        return str_replace("{{NAME}}", $exists->getName(), $pattern) . PHP_EOL;
 
 
 

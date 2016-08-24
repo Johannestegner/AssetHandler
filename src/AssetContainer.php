@@ -14,10 +14,21 @@ use Jite\AssetHandler\Contracts\AssetContainerInterface;
 use Jite\AssetHandler\Contracts\AssetInterface;
 use Traversable;
 
+/**
+ * @internal
+ */
 class AssetContainer implements AssetContainerInterface, Countable, IteratorAggregate {
 
     private $innerContainer = array();
     private $count          = 0;
+    private $baseUrl        = "";
+
+    /**
+     * @param string $baseUrl
+     */
+    public function __construct(string $baseUrl = "/assets") {
+        $this->baseUrl = $baseUrl;
+    }
 
     /**
      * Add an asset.
@@ -27,10 +38,10 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
      */
     public function add(AssetInterface $asset) : bool {
         // Check if asset already in the container.
-
-        if ($this->exists($asset, true)) {
+        if ($this->exists($asset)) {
             return false;
         }
+        $asset->setContainer($this);
 
         $this->innerContainer[$this->count] = $asset;
         $this->count++;
@@ -45,7 +56,7 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
      */
     public function remove(AssetInterface $asset) : bool {
 
-        $index = $this->indexOf($asset, true);
+        $index = $this->indexOf($asset);
         if (-1 === $index) {
             return false;
         }
@@ -113,21 +124,19 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
      * Check if given asset exists in the container.
      *
      * @param AssetInterface $asset
-     * @param bool $strict
      * @return bool
      */
-    public function exists(AssetInterface $asset, bool $strict = false) : bool {
+    public function exists(AssetInterface $asset) : bool {
 
-        $result = -1 !== $this->indexOf($asset, $strict);
+        $result = -1 !== $this->indexOf($asset);
         return $result;
     }
 
     /**
      * @param AssetInterface $asset
-     * @param bool           $strict
      * @return int
      */
-    private function indexOf(AssetInterface $asset, bool $strict) : int {
+    private function indexOf(AssetInterface $asset) : int {
 
         for ($i = $this->count; $i-->0;) {
             /** @var Asset $curr */
@@ -137,10 +146,8 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
                 return $i;
             }
 
-            if (true == $strict &&
-                $curr->getFullPath() === $asset->getFullPath() &&
-                $curr->getType() === $asset->getType()) {
-
+            if ($curr->getType() === $asset->getType() &&
+                $curr->getName() === $asset->getName()) {
                 return $i;
             }
 
@@ -157,4 +164,22 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
         return $this->innerContainer;
     }
 
+    /**
+     * Get the base path of all assets in the container.
+     *
+     * @return string
+     */
+    public function getBaseUrl() : string {
+        return $this->baseUrl;
+    }
+
+    /**
+     * Set the base path of all assets in the container.
+     *
+     * @param string $baseUrl
+     * @return void
+     */
+    public function setBaseUrl(string $baseUrl) {
+        $this->baseUrl = $baseUrl;
+    }
 }
