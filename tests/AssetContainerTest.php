@@ -142,7 +142,8 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testGetBaseUrl() {
-        $this->assertEquals("/assets", $this->container->getBaseUrl());
+        $container = new AssetContainer("/abc/def");
+        $this->assertEquals("/abc/def", $container->getBaseUrl());
     }
 
     public function testSetBaseUrl() {

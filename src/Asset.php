@@ -9,6 +9,7 @@ namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Contracts\AssetContainerInterface;
 use Jite\AssetHandler\Contracts\AssetInterface;
+use Jite\AssetHandler\Exceptions\InvalidContainerException;
 
 /**
  * @internal
@@ -60,6 +61,10 @@ class Asset implements AssetInterface {
     }
 
     public function getFullUrl() {
+        if (!$this->container) {
+            throw new InvalidContainerException("Container was null.");
+        }
+
         $baseUrl = $this->container->getBaseUrl();
         $prep    = $this->getPath();
 
