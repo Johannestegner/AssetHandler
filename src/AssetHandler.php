@@ -22,7 +22,7 @@ class AssetHandler implements AssetHandlerInterface {
     private $knownTypes = array(
         AssetTypes::STYLE_SHEET => [
             "regex"        => "/\\.css$/i",
-            "print_string" => '<link rel="stylesheet" type="text/css" href="{{PATH}}">'
+            "print_string" => '<link rel="stylesheet" type="text/css" href="{{PATH}}" title="{{NAME}}">'
         ],
         AssetTypes::SCRIPT => [
             "regex"        => "/\\.js$/i",
@@ -219,7 +219,34 @@ class AssetHandler implements AssetHandlerInterface {
      * @return string HTML tags.
      */
     public function printAll(string $container = AssetTypes::ANY) : string {
-        // TODO: Implement printAll() method.
+
+        $containers = [];
+        if ($container !== AssetTypes::ANY) {
+            $containers[] = $container;
+        } else {
+            foreach ($this->containers as $key => $val) {
+                $containers[] = $key;
+            }
+        }
+
+        $out = "";
+        foreach ($containers as $container) {
+
+            foreach ($this->containers[$container] as $asset) {
+
+                if (array_key_exists($container, $this->knownTypes)) {
+                    $pattern = $this->knownTypes[$container]["print_string"];
+                } else {
+                    throw new InvalidContainerException("The container got no pattern to print.");
+                }
+
+                // Replace the placeholders.
+                $pattern = str_replace("{{PATH}}", $asset->getFullUrl(), $pattern);
+                $out    .= str_replace("{{NAME}}", $asset->getName(), $pattern) . PHP_EOL;
+            }
+        }
+
+        return $out;
     }
 
     /**
@@ -355,6 +382,9 @@ class AssetHandler implements AssetHandlerInterface {
             return "<!-- Failed to fetch asset ({$assetName}) -->" . PHP_EOL;
         }
 
+        // If custom is set, that is what is supposed to be used.
+        // Else the knownTypes array have to contain a pattern for it to work.
+        // If it does not, its quite fatal!
         $pattern = $custom;
         if ($pattern === "") {
             if (array_key_exists($exists->getType(), $this->knownTypes)) {
@@ -364,13 +394,9 @@ class AssetHandler implements AssetHandlerInterface {
             }
         }
 
+        // Replace the placeholders.
         $pattern = str_replace("{{PATH}}", $exists->getFullUrl(), $pattern);
         return str_replace("{{NAME}}", $exists->getName(), $pattern) . PHP_EOL;
-
-
-
-
-
     }
 
     /**

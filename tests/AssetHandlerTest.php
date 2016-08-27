@@ -240,27 +240,77 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testPrintPredefinedImage() {
-
+        $this->handler->add("/images/test.png", "test", AssetTypes::IMAGE);
+        $this->assertEquals(
+            $this->handler->print("test", AssetTypes::IMAGE),
+            '<img src="/assets/images/test.png">' . PHP_EOL
+        );
     }
 
     public function testPrintPredefinedScript() {
-
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            $this->handler->print("test", AssetTypes::SCRIPT),
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL
+        );
     }
 
     public function testPrintPredefinedStyle() {
-
+        $this->handler->add("/css/test.css", "test", AssetTypes::STYLE_SHEET);
+        $this->assertEquals(
+            $this->handler->print("test", AssetTypes::STYLE_SHEET),
+            '<link rel="stylesheet" type="text/css" href="/assets/css/test.css" title="test">' . PHP_EOL
+        );
     }
-
 
     //endregion
 
     //region AssetHandler::printAll
 
-    public function testPrintAllOneAssetAndContainer() {}
-    public function testPrintAllOneAssetNoContainer() {}
-    public function testPrintAllMultiAssetAndContainer() {}
-    public function testPrintAllMultiAssetNoContainer() {}
-    public function testPrintAllNoAssets() {}
+    public function testPrintAllOneAssetAndContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->printAll(AssetTypes::SCRIPT)
+        );
+    }
+
+    public function testPrintAllOneAssetNoContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->assertEquals(
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->printAll()
+        );
+    }
+
+    public function testPrintAllMultiAssetAndContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("/js/test2.js", "test2", AssetTypes::SCRIPT);
+
+        $this->assertEquals(
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL .
+            '<script src="/assets/js/test2.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->printAll(AssetTypes::SCRIPT)
+        );
+    }
+
+    public function testPrintAllMultiAssetNoContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("/js/test2.js", "test2", AssetTypes::SCRIPT);
+
+        $this->assertEquals(
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL .
+            '<script src="/assets/js/test2.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->printAll()
+        );
+    }
+
+    public function testPrintAllNoAssets() {
+        $this->assertEquals(
+            "",
+            $this->handler->printAll()
+        );
+    }
 
     //endregion
 

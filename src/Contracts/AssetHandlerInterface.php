@@ -12,7 +12,6 @@ use Jite\AssetHandler\Exceptions\InvalidAssetException;
 use Jite\AssetHandler\Exceptions\InvalidContainerException;
 use Jite\AssetHandler\Types\AssetTypes;
 
-
 interface AssetHandlerInterface {
 
     /**
