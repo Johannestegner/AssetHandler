@@ -314,4 +314,79 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     //endregion
 
+    //region AssetHandler::getAssets
+    // The "getAssets" method is supposed to be internal, but it IS public, so a test should be written.
+
+    public function testGetAssetsOneAssetNoContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+
+        $this->assertCount(1, $this->handler->getAssets());
+        $asset = $this->handler->getAssets()[0];
+
+        $this->assertEquals("/js/test.js", $asset->getPath());
+        $this->assertEquals("/assets/js/test.js", $asset->getFullUrl());
+        $this->assertEquals("test", $asset->getName());
+        $this->assertEquals(AssetTypes::SCRIPT, $asset->getType());
+    }
+
+    public function testGetAssetsOneAssetWithContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+
+        $this->assertCount(1, $this->handler->getAssets(AssetTypes::SCRIPT));
+        $asset = $this->handler->getAssets(AssetTypes::SCRIPT)[0];
+
+        $this->assertEquals("/js/test.js", $asset->getPath());
+        $this->assertEquals("/assets/js/test.js", $asset->getFullUrl());
+        $this->assertEquals("test", $asset->getName());
+        $this->assertEquals(AssetTypes::SCRIPT, $asset->getType());
+    }
+
+
+    public function testGetAssetsMultipleAssetNoContainer() {
+
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("/js/test2.css", "test2", AssetTypes::STYLE_SHEET);
+
+        $assets = $this->handler->getAssets();
+        $this->assertCount(2, $assets);
+
+        $css = array_first($assets, function($i, Asset $a) {
+            return $a->getType() === AssetTypes::STYLE_SHEET;
+        });
+        $script = array_first($assets, function($i, Asset $a) {
+            return $a->getType() === AssetTypes::SCRIPT;
+        });
+
+        $this->assertEquals("test2", $css->getName());
+        $this->assertEquals("test", $script->getName());
+    }
+
+    public function testGetAssetsMultipleAssetWithContainer() {
+        $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
+        $this->handler->add("/js/test.js", "test2", AssetTypes::SCRIPT);
+        $this->handler->add("/js/test2.css", "test2", AssetTypes::STYLE_SHEET);
+
+        $assets = $this->handler->getAssets(AssetTypes::SCRIPT);
+        $this->assertCount(2, $assets);
+
+        $t1 = array_first($assets, function($i, Asset $a) {
+            return $a->getName() === "test";
+        });
+        $t2 = array_first($assets, function($i, Asset $a) {
+            return $a->getName() === "test2";
+        });
+
+        $this->assertNotNull($t1);
+        $this->assertNotNull($t2);
+    }
+
+    public function testGetAssetsNoAssetNoContainer() {
+        $this->assertEmpty($this->handler->getAssets());
+    }
+
+    public function testGetAssetsNoAssetWithContainer() {
+        $this->assertEmpty($this->handler->getAssets(AssetTypes::SCRIPT));
+    }
+
+    //endregion
 }
