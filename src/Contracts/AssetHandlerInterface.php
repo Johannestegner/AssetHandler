@@ -7,9 +7,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Contracts;
 
-use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
-use Jite\AssetHandler\Exceptions\InvalidAssetException;
-use Jite\AssetHandler\Exceptions\InvalidContainerException;
 use Jite\AssetHandler\Types\AssetTypes;
 
 interface AssetHandlerInterface {
@@ -24,8 +21,6 @@ interface AssetHandlerInterface {
      * @param string $assetName Asset name, Optional, if no name, the path will be used as name.
      * @param string $container Container name.
      * @return bool
-     * @throws AssetNameNotUniqueException
-     * @throws InvalidContainerException
      */
     public function add(string $asset, string $assetName = "", string $container = AssetTypes::ANY) : bool;
 
@@ -39,9 +34,6 @@ interface AssetHandlerInterface {
      * @param string $assetName Asset name or path.
      * @param string $container
      * @return bool
-     * @throws AssetNameNotUniqueException
-     * @throws InvalidAssetException
-     * @throws InvalidContainerException
      */
     public function remove(string $assetName, string $container = AssetTypes::ANY);
 
@@ -69,7 +61,6 @@ interface AssetHandlerInterface {
      * @param string $container Container for quicker access.
      * @param string $custom Custom tag.
      * @return string HTML formatted tag
-     * @throws InvalidContainerException
      */
     public function print(string $assetName, string $container = AssetTypes::ANY, string $custom = "") : string;
 
@@ -91,15 +82,6 @@ interface AssetHandlerInterface {
      * @return AssetInterface[]|array
      */
     public function getAssets(string $container = AssetTypes::ANY) : array;
-
-    /**
-     * Fetch all assets paths as a merged array.
-     * If container is specified, only that containers assets will be returned, else all.
-     *
-     * @param string $container
-     * @return string[]|array
-     */
-    public function getAssetPaths(string $container = AssetTypes::ANY) : array;
 
     /**
      * Set a container (or all if non is passed) to use versioning.

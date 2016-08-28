@@ -217,6 +217,7 @@ class AssetHandler implements AssetHandlerInterface {
      *
      * @param string $container Container to print.
      * @return string HTML tags.
+     * @throws InvalidContainerException
      */
     public function printAll(string $container = AssetTypes::ANY) : string {
 
@@ -316,17 +317,6 @@ class AssetHandler implements AssetHandlerInterface {
      */
     public function setBasePath(string $path = "public/assets", string $container = AssetTypes::ANY) {
         // TODO: Implement setBasePath() method.
-    }
-
-    /**
-     * Fetch all assets paths as a merged array.
-     * If container is specified, only that containers assets will be returned, else all.
-     *
-     * @param string $container
-     * @return string[]|array
-     */
-    public function getAssetPaths(string $container = AssetTypes::ANY) : array {
-        // TODO: Implement getAssetPaths() method.
     }
 
     /**
