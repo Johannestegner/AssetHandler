@@ -484,4 +484,46 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     //endregion
 
+
+    //region Test AssetHandler::addContainer
+
+    public function testAddContainer() {
+        $this->assertTrue($this->handler->addContainer("Test", "<{{NAME}}>"));
+    }
+
+    public function testAddContainerFailUnique() {
+        $this->assertTrue($this->handler->addContainer("Test", "<{{NAME}}>"));
+        $this->setExpectedException(
+            InvalidContainerException::class,
+            'Container named "Test" already exist.'
+        );
+        $this->handler->addContainer("Test", "<{{PATH}}>");
+    }
+
+    //endregion
+
+    //region Test AssetHandler::removeContainer
+
+    public function testRemoveContainer() {
+        $this->assertTrue($this->handler->addContainer("Test", "<{{NAME}}>"));
+        $this->assertTrue($this->handler->removeContainer("Test"));
+
+        $this->assertTrue($this->handler->addContainer("Test", "<{{NAME}}>"));
+        $this->assertTrue($this->handler->addContainer("Test2", "<{{NAME}}>"));
+
+
+        $this->assertTrue($this->handler->removeContainer("Test2"));
+        $this->handler->getAssets("Test"); // This should blow up if the "test" container does no longer exist.
+    }
+
+    public function testRemoveContainerFailNoContainer() {
+        $this->setExpectedException(
+            InvalidContainerException::class,
+            'Container named "Test" does not exist.'
+        );
+        $this->handler->removeContainer("Test");
+    }
+
+    //endregion
+
 }

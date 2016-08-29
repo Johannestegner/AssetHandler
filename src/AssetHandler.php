@@ -261,9 +261,18 @@ class AssetHandler implements AssetHandlerInterface {
      *
      * @param string $containerName Name of container to remove.
      * @return bool Result
+     * @throws InvalidContainerException
      */
     public function removeContainer(string $containerName) {
-        // TODO: Implement removeContainer() method.
+        if (!$this->containerExists($containerName)) {
+            throw new InvalidContainerException(Errors::CONTAINER_NOT_EXIST, $containerName);
+        }
+
+        unset($this->containers[$containerName]);
+        unset($this->knownTypes[$containerName]);
+        unset($this->paths[$containerName]);
+
+        return true;
     }
 
     /**
@@ -408,8 +417,15 @@ class AssetHandler implements AssetHandlerInterface {
      * @param string $containerName Unique name for the new container.
      * @param string $customTag Custom tag (see docs above).
      * @return bool Result
+     * @throws InvalidContainerException
      */
     public function addContainer(string $containerName, string $customTag) : bool {
-        // TODO: Implement addContainer() method.
+
+        if ($this->containerExists($containerName)) {
+            throw new InvalidContainerException(Errors::CONTAINER_NOT_UNIQUE, $containerName);
+        }
+
+        $this->containers[$containerName] = new AssetContainer("");
+        return true;
     }
 }
