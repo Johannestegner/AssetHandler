@@ -68,7 +68,7 @@ class Asset implements AssetInterface {
         $baseUrl = $this->container->getBaseUrl();
         $prep    = $this->getPath();
 
-        if (substr($baseUrl, -1) !== "/" || substr($baseUrl, -1) !== "\\") {
+        if (substr($baseUrl, -1) !== "/" && substr($baseUrl, -1) !== "\\") {
             $baseUrl .= "/";
         }
 
