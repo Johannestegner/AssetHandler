@@ -526,4 +526,67 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     //endregion
 
+    //region Extra tests for custom containers.
+
+    public function testCustomContainerAddAsset() {
+        $this->handler->addContainer("test", "<{{NAME}}>");
+        $this->handler->add("/", "Test", "test");
+
+        $this->assertEquals("<Test>" . PHP_EOL, $this->handler->printAll());
+    }
+
+    public function testCustomContainerRemoveAsset() {
+        $this->handler->addContainer("test", "<{{NAME}}>");
+        $this->handler->add("/", "Test", "test");
+
+        $this->assertCount(1, $this->handler->getAssets("test"));
+        $this->assertTrue($this->handler->remove("Test", "test"));
+        $this->assertCount(0, $this->handler->getAssets("test"));
+    }
+
+    public function testCustomContainerPrint() {
+        $this->handler->addContainer("test", "<{{NAME}}>");
+        $this->handler->add("/", "Test", "test");
+
+        $this->assertEquals("<Test>" . PHP_EOL, $this->handler->print("Test", "test"));
+    }
+
+    public function testCustomContainerPrintAll() {
+        $this->handler->addContainer("test", "<{{NAME}}>");
+        $this->handler->add("/", "Test", "test");
+
+        $this->assertEquals("<Test>" . PHP_EOL, $this->handler->printAll("test"));
+    }
+
+    public function testCustomContainerGetAssets() {
+        $this->handler->addContainer("test", "<{{NAME}}>");
+        $this->handler->add("/", "Test", "test");
+
+        $this->assertCount(1, $this->handler->getAssets("test"));
+    }
+
+    public function testCustomContainerSetBaseUrl() {
+        $this->handler->addContainer("test", "<{{PATH}}>");
+        $this->handler->add("/test/test.abc", "Test", "test");
+
+        $this->assertTrue($this->handler->setBaseUrl("/foo/bar", "test"));
+        $this->assertEquals(
+            "/foo/bar/test/test.abc",
+            $this->handler->getAssets("test")[0]->getFullUrl()
+        );
+
+    }
+
+    public function testCustomContainerSetBasePath() {
+        $this->handler->addContainer("test", "<{{PATH}}>");
+        $this->handler->add("/assets/js/test2.js", "Test", "test");
+
+        $fsRoot = $this->setUpFilesystemMock();
+        $path   = $fsRoot->url() . "/project/public";
+
+        $this->assertTrue($this->handler->setBasePath($path, "test"));
+    }
+
+    //endregion
+
 }

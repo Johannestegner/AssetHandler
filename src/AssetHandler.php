@@ -66,6 +66,10 @@ class AssetHandler implements AssetHandlerInterface {
 
     private function determineContainer(string $fileName) : string {
         foreach ($this->knownTypes as $type => $data) {
+            if (!isset($data['regex'])) {
+                continue;
+            }
+
             if (preg_match($data['regex'], $fileName) === 1) {
                 return $type;
             }
@@ -426,6 +430,7 @@ class AssetHandler implements AssetHandlerInterface {
         }
 
         $this->containers[$containerName] = new AssetContainer("");
+        $this->knownTypes[$containerName] = [ "print_string" => $customTag ];
         return true;
     }
 }
