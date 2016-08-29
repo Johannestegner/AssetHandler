@@ -124,16 +124,16 @@ interface AssetHandlerInterface {
      *
      * @param string $url URL to the public assets directory.
      * @param string $container
-     * @return void
+     * @return bool Result.
      */
-    public function setBaseUrl(string $url = "/assets", string $container = AssetTypes::ANY);
+    public function setBaseUrl(string $url = "/assets", string $container = AssetTypes::ANY) : bool;
 
     /**
      * Set the base path to a given container (or all).
      *
      * @param string $path Path to the assets folder.
      * @param string $container
-     * @return void
+     * @return bool Result.
      */
-    public function setBasePath(string $path =  "public/assets", string $container = AssetTypes::ANY);
+    public function setBasePath(string $path =  "public/assets", string $container = AssetTypes::ANY) : bool;
 }

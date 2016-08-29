@@ -11,7 +11,9 @@ namespace Jite\AssetHandler;
 use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
 use Jite\AssetHandler\Exceptions\InvalidAssetException;
 use Jite\AssetHandler\Exceptions\InvalidContainerException;
+use Jite\AssetHandler\Exceptions\InvalidPathException;
 use Jite\AssetHandler\Types\AssetTypes;
+use org\bovigo\vfs\vfsStream;
 use PHPUnit_Framework_TestCase;
 
 class AssetHandlerTest extends PHPUnit_Framework_TestCase {
@@ -22,8 +24,40 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         $this->handler = new AssetHandler();
         $this->handler->setBaseUrl("/assets/");
-        $this->handler->setBasePath("/public/assets/");
     }
+
+    //region Helpers.
+
+    /**
+     * Set up filesystem mock and return the root dir as vfsStreamDirectory.
+     *
+     * @return \org\bovigo\vfs\vfsStreamDirectory
+     */
+    private function setUpFilesystemMock() {
+        $fileStructure = [
+            "project" => [
+                "public" => [
+                    "assets" => [
+                        "js" => [
+                            "test1.js" => "var a = 5;",
+                            "test2.js" => "var b = 10;",
+                            "test3.js" => "var d = 32;"
+                        ],
+                        "css" => [
+                            "test1.css" => ".some-class { background: blue; }",
+                            "test2.css" => ".some-class { background: blue; }",
+                            "test3.css" => ".some-class { background: blue; }"
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $root = vfsStream::setup("www", null, $fileStructure);
+        return $root;
+    }
+
+    //endregion
 
     //region AssetHandler::add
 
@@ -44,14 +78,14 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->handler->add("test.js", "test", AssetTypes::SCRIPT));
         $this->setExpectedException(
             AssetNameNotUniqueException::class,
-            'An asset with the name test already exists in the container (' . AssetTypes::SCRIPT .')'
+            'An asset with the name "test" already exists in the container (script).'
         );
         $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
 
         // Make sure that it blows up when not passing the container, so that the Add method will place the asset right.
         $this->setExpectedException(
             AssetNameNotUniqueException::class,
-            'An asset with the name test already exists in the container (' . AssetTypes::SCRIPT .')'
+            'An asset with the name test already exists in the container (script)'
         );
         $this->handler->add("test.js", "test");
     }
@@ -59,7 +93,7 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     public function testAddFailWithInvalidContainer() {
         $this->setExpectedException(
             InvalidContainerException::class,
-            'No container with name "test" found in the asset handler.'
+            'Container named "test" does not exist.'
         );
 
         $this->handler->add("test.js", "test", "test");
@@ -68,7 +102,7 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     public function testAddFailWithContainerNotPossibleToDetermine() {
         $this->setExpectedException(
             InvalidContainerException::class,
-            "Could not determine Container from the asset path (test.sdfgf)."
+            "Could not determine container from the asset path (test.sdfgf)."
         );
 
         $this->handler->add("test.sdfgf", "test");
@@ -147,8 +181,8 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(2, $this->handler->getAssets());
         $this->setExpectedException(
             AssetNameNotUniqueException::class,
-            'Failed to remove asset with name "test". ' .
-            'Due to none unique name, the container name is required for this operation.');
+            'Asset name "test" exists in multiple containers. Container param is required.'
+        );
         $this->assertTrue($this->handler->remove("test"));
     }
 
@@ -164,14 +198,14 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
         $this->setExpectedException(
             InvalidContainerException::class,
-            'Failed to remove asset with name "test.js". The container (abcdef) does not exist.');
+            'Container named "abcdef" does not exist.');
         $this->handler->remove("test.js", "abcdef");
     }
 
     public function testRemoveAssetWithUnknownFileTypeFail() {
         $this->setExpectedException(
-            InvalidAssetException::class,
-            'Failed to remove asset with name "test.sds". The asset container could not be determined from file type.');
+            InvalidContainerException::class,
+            'Could not determine container from the asset path (test.sds).');
         $this->handler->remove("test.sds");
     }
 
@@ -189,52 +223,52 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     public function testPrintNoAsset() {
         $this->assertEquals(
-            $this->handler->print("none.js", AssetTypes::SCRIPT),
-            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL
+            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL,
+            $this->handler->print("none.js", AssetTypes::SCRIPT)
         );
 
         $this->assertEquals(
-            $this->handler->print("none.js"),
-            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL
+            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL,
+            $this->handler->print("none.js")
         );
     }
 
     public function testPrintWithAssetAndContainer() {
         $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
         $this->assertEquals(
-            $this->handler->print("test", AssetTypes::SCRIPT),
-            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->print("test", AssetTypes::SCRIPT)
         );
     }
 
     public function testPrintWithAssetNoContainer() {
         $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
         $this->assertEquals(
-            $this->handler->print("test"),
-            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL
+            '<script src="/assets/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->print("test")
         );
     }
 
     public function testPrintWithAssetAndContainerCustomString() {
         $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
         $this->assertEquals(
+            '<script src="/assets/js/test.js" type="application/javascript">var a = "test";</script>' . PHP_EOL,
             $this->handler->print(
                 "test",
                 AssetTypes::SCRIPT,
                 '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
-            ),
-            '<script src="/assets/js/test.js" type="application/javascript">var a = "test";</script>' . PHP_EOL
+            )
         );
     }
 
     public function testPrintNoAssetAndCustomString() {
         $this->assertEquals(
+            '<!-- Failed to fetch asset (test) -->' . PHP_EOL,
             $this->handler->print(
                 "test",
                 AssetTypes::SCRIPT,
                 '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
-            ),
-            '<!-- Failed to fetch asset (test) -->' . PHP_EOL
+            )
         );
 
     }
@@ -242,8 +276,8 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     public function testPrintPredefinedImage() {
         $this->handler->add("/images/test.png", "test", AssetTypes::IMAGE);
         $this->assertEquals(
-            $this->handler->print("test", AssetTypes::IMAGE),
-            '<img src="/assets/images/test.png">' . PHP_EOL
+            '<img src="/assets/images/test.png">' . PHP_EOL,
+            $this->handler->print("test", AssetTypes::IMAGE)
         );
     }
 
@@ -258,8 +292,8 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     public function testPrintPredefinedStyle() {
         $this->handler->add("/css/test.css", "test", AssetTypes::STYLE_SHEET);
         $this->assertEquals(
-            $this->handler->print("test", AssetTypes::STYLE_SHEET),
-            '<link rel="stylesheet" type="text/css" href="/assets/css/test.css" title="test">' . PHP_EOL
+            '<link rel="stylesheet" type="text/css" href="/assets/css/test.css" title="test">' . PHP_EOL,
+            $this->handler->print("test", AssetTypes::STYLE_SHEET)
         );
     }
 
@@ -341,7 +375,6 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(AssetTypes::SCRIPT, $asset->getType());
     }
 
-
     public function testGetAssetsMultipleAssetNoContainer() {
 
         $this->handler->add("/js/test.js", "test", AssetTypes::SCRIPT);
@@ -389,4 +422,75 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     }
 
     //endregion
+
+    //region Test AssetHandler::setBaseUrl
+
+    public function testSetBaseUrl() {
+        $this->handler->add("js/test.js", "test", AssetTypes::SCRIPT);
+
+        $this->assertTrue($this->handler->setBaseUrl("/test/test/test"));
+        $this->assertEquals(
+            '<script src="/test/test/test/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->print("test")
+        );
+
+        $this->assertTrue($this->handler->setBaseUrl("/test/scripts/"));
+        $this->assertEquals(
+            '<script src="/test/scripts/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->print("test")
+        );
+
+        $this->handler->add("test.css" , "style", AssetTypes::STYLE_SHEET);
+
+        $this->assertTrue($this->handler->setBaseUrl("/public/scripts", AssetTypes::SCRIPT));
+        $this->assertTrue($this->handler->setBaseUrl("/public/styles", AssetTypes::STYLE_SHEET));
+
+        $this->assertEquals(
+            '<script src="/public/scripts/js/test.js" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->print("test", AssetTypes::SCRIPT)
+        );
+
+        $this->assertEquals(
+            '<link rel="stylesheet" type="text/css" href="/public/styles/test.css" title="style">' . PHP_EOL,
+            $this->handler->print("style", AssetTypes::STYLE_SHEET)
+        );
+    }
+
+    public function testSetBaseUrlInvalidContainer() {
+        $this->setExpectedException(
+            InvalidContainerException::class,
+            'Container named "invalid-container" does not exist.'
+        );
+
+        $this->handler->setBaseUrl("/abc", "invalid-container");
+    }
+
+    //endregion
+
+    //region Test AssetHandler::setBasePath
+
+    public function testSetBasePath() {
+        $fsRoot          = $this->setUpFilesystemMock();
+        $projectBasePath = $fsRoot->url() . "/project/public";
+        $this->assertTrue($this->handler->setBasePath($projectBasePath));
+    }
+
+    public function testSetBasePathInvalidPath() {
+        $fsRoot          = $this->setUpFilesystemMock();
+        $projectBasePath = $fsRoot->url() . "/pruject/public";
+        $this->setExpectedException(InvalidPathException::class, 'The path "vfs://www/pruject/public" is invalid.');
+        $this->handler->setBasePath($projectBasePath);
+    }
+
+    public function testSetBasePathInvalidContainer() {
+        $fsRoot = $this->setUpFilesystemMock();
+        $this->setExpectedException(
+            InvalidContainerException::class,
+            'Container named "invalid-container" does not exist.'
+        );
+        $this->handler->setBasePath($fsRoot->url() . "/project/public", "invalid-container");
+    }
+
+    //endregion
+
 }
