@@ -7,6 +7,4 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Exceptions;
 
-use Exception;
-
-class AssetNameNotUniqueException extends Exception { }
+class AssetNameNotUniqueException extends FormattableException { }

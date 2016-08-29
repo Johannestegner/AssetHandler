@@ -7,6 +7,4 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Exceptions;
 
-use Exception;
-
-class InvalidAssetException extends Exception { }
+class InvalidAssetException extends FormattableException { }

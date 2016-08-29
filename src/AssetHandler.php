@@ -10,12 +10,15 @@
 namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Contracts\AssetHandlerInterface;
-use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
-use Jite\AssetHandler\Exceptions\InvalidAssetException;
-use Jite\AssetHandler\Exceptions\InvalidContainerException;
-use Jite\AssetHandler\Exceptions\InvalidPathException;
 use Jite\AssetHandler\Types\AssetTypes;
-use Jite\AssetHandler\Exceptions\ExceptionMessages as Errors;
+use Jite\AssetHandler\Exceptions\ {
+    AssetNameNotUniqueException,
+    InvalidAssetException,
+    InvalidContainerException,
+    InvalidPathException,
+
+    ExceptionMessages as Errors
+};
 
 class AssetHandler implements AssetHandlerInterface {
 
@@ -151,8 +154,8 @@ class AssetHandler implements AssetHandlerInterface {
      *
      * Observe:
      * If no container is specified the handler will try to remove it
-     * from a predefined container based on the file type.
-     * If no asset is found in the predefined container, none will be removed.
+     * from a container based on the file type. If file type can not be determined a exception will be thrown.
+     * Its always recommended to use a container when calling this method.
      *
      * @param string $assetName Asset name or path.
      * @param string $container
@@ -163,33 +166,11 @@ class AssetHandler implements AssetHandlerInterface {
      */
     public function remove(string $assetName, string $container = AssetTypes::ANY) {
 
-        if ($container === AssetTypes::ANY && str_contains($assetName, ".")) {
+        if ($container === AssetTypes::ANY) {
             $container = $this->determineContainer($assetName);
 
             if ($container === "") {
                 throw new InvalidContainerException(sprintf(Errors::CONTAINER_NOT_DETERMINABLE, $assetName));
-            }
-        } else if ($container === AssetTypes::ANY) {
-            // Not possible to determine a filename from a file without a file type (no dot!), so
-            // make sure that the asset does not exist in multiple containers before removing any.
-            // Check only predefined, if not in one of those, just skip it and blow up!
-            $types = array_filter(AssetTypes::getTypes(), function(string $type) {
-                return $type !== AssetTypes::ANY;
-            });
-
-            $container = null;
-            $count     = 0;
-            foreach ($types as $type) {
-                if ($this->findAssetByName($assetName, [$type])) {
-                    $container = $type;
-                    $count++;
-                }
-            }
-
-            if ($count > 1) {
-                throw new AssetNameNotUniqueException(sprintf(Errors::ASSET_NOT_HANDLER_UNIQUE, $assetName));
-            } else if ($count <= 0) {
-                return false;
             }
         }
 
@@ -252,9 +233,7 @@ class AssetHandler implements AssetHandlerInterface {
         $containers = [];
 
         if ($container === AssetTypes::ANY) {
-            $containers = array_filter(AssetTypes::getTypes(), function(string $type) {
-                return $type !== AssetTypes::ANY;
-            });
+            $containers = array_keys($this->containers);
             $containers = array_map(function(string $container) {
                 return $this->containers[$container]->toArray();
             }, $containers);
@@ -325,18 +304,13 @@ class AssetHandler implements AssetHandlerInterface {
         // When setting a path, the bundle needs to access the filesystem to check that the path is actually real.
         // If path is set to null, there will be no FS access.
         $containers = [];
+
         if ($container === AssetTypes::ANY) {
-            foreach (AssetTypes::getTypes() as $type) {
-                if ($type === AssetTypes::ANY) {
-                    continue;
-                }
-                $containers[] = $type;
-            }
+            $containers = array_keys($this->containers);
         } else {
             if (!array_key_exists($container, $this->containers)) {
                 throw new InvalidContainerException(sprintf(Errors::CONTAINER_NOT_EXIST, $container));
             }
-
             $containers = [$container];
         }
 
@@ -386,9 +360,7 @@ class AssetHandler implements AssetHandlerInterface {
             // Try determine container.
             $container = $this->determineContainer($assetName);
             if (!$container) {
-                $containers = array_filter(AssetTypes::getTypes(), function(string $type) {
-                    return $type !== AssetTypes::ANY;
-                });
+                $containers = array_keys($this->containers);
             } else {
                 $containers[] = $container;
             }

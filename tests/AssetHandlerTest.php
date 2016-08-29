@@ -8,10 +8,10 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler;
 
-use Jite\AssetHandler\Exceptions\AssetNameNotUniqueException;
-use Jite\AssetHandler\Exceptions\InvalidAssetException;
-use Jite\AssetHandler\Exceptions\InvalidContainerException;
-use Jite\AssetHandler\Exceptions\InvalidPathException;
+use Jite\AssetHandler\Exceptions\{
+    AssetNameNotUniqueException, InvalidAssetException, InvalidContainerException, InvalidPathException
+};
+
 use Jite\AssetHandler\Types\AssetTypes;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit_Framework_TestCase;
@@ -169,27 +169,18 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
         $this->handler->add("test.css", "test2", AssetTypes::STYLE_SHEET);
         $this->assertCount(2, $this->handler->getAssets());
+        $this->setExpectedException(
+            InvalidContainerException::class,
+            "Could not determine container from the asset path (test)."
+        );
         $this->assertTrue($this->handler->remove("test"));
         $this->assertCount(1, $this->handler->getAssets());
 
     }
 
-    public function testRemoveAssetWithoutContainerNameMultipleWithName() {
-
-        $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
-        $this->handler->add("test.css", "test", AssetTypes::STYLE_SHEET);
-        $this->assertCount(2, $this->handler->getAssets());
-        $this->setExpectedException(
-            AssetNameNotUniqueException::class,
-            'Asset name "test" exists in multiple containers. Container param is required.'
-        );
-        $this->assertTrue($this->handler->remove("test"));
-    }
-
     public function testRemoveAssetWithBadAssetName() {
 
         $this->handler->add("test.css", "test", AssetTypes::STYLE_SHEET);
-        $this->assertFalse($this->handler->remove("testz"));
         $this->assertFalse($this->handler->remove("testz", AssetTypes::STYLE_SHEET));
         $this->assertFalse($this->handler->remove("testz.js", AssetTypes::STYLE_SHEET));
     }

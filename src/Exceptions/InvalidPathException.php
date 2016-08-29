@@ -7,6 +7,4 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Exceptions;
 
-use Exception;
-
-class InvalidPathException extends Exception{ }
+class InvalidPathException extends FormattableException { }
