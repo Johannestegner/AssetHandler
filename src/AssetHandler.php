@@ -433,4 +433,30 @@ class AssetHandler implements AssetHandlerInterface {
         $this->knownTypes[$containerName] = [ "print_string" => $customTag ];
         return true;
     }
+
+    /**
+     * Set a container (or all if non is passed) to use versioning.
+     * The versioning will add the files last modified time to the asset name on print.
+     *
+     * This is used to make sure that the asset is loaded when it has been edited (so that the browser cache don't
+     * use an old asset).
+     *
+     * Observe:
+     * When setting versioning on a container, the containers path will have to be re-validated
+     * so that its certain that the path exists.
+     * If the directory don't exist, an error will be throws.
+     * So set the directory base path before calling this, and make sure that it is correct.
+     *
+     * When fetching assets via the print methods, if an asset is not possible to find, it will not be "versioned" as
+     * any found asset, but it will still be printed.
+     *
+     * @param bool   $state
+     * @param string $container
+     * @return bool Result.
+     */
+    public function setIsUsingVersioning(bool $state, string $container = AssetTypes::ANY) : bool {
+        $this->isUsingVersioning = $state;
+
+        // TODO: Implement setIsUsingVersioning() method.
+    }
 }
