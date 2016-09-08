@@ -13,9 +13,9 @@ final class AssetTypes {
 
     private function __construct() { }
 
-    const SCRIPT      = "script";
-    const STYLE_SHEET = "style sheet";
-    const IMAGE       = "image";
+    const SCRIPT      = "scripts";
+    const STYLE_SHEET = "style sheets";
+    const IMAGE       = "images";
     const ANY         = "any";
 
     private static $cache          = array();

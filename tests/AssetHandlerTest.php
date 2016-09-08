@@ -78,14 +78,14 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->handler->add("test.js", "test", AssetTypes::SCRIPT));
         $this->setExpectedException(
             AssetNameNotUniqueException::class,
-            'An asset with the name "test" already exists in the container (script).'
+            'An asset with the name "test" already exists in the container (scripts).'
         );
         $this->handler->add("test.js", "test", AssetTypes::SCRIPT);
 
         // Make sure that it blows up when not passing the container, so that the Add method will place the asset right.
         $this->setExpectedException(
             AssetNameNotUniqueException::class,
-            'An asset with the name test already exists in the container (script)'
+            'An asset with the name test already exists in the container (scripts)'
         );
         $this->handler->add("test.js", "test");
     }
