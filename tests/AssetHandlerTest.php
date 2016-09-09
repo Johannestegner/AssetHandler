@@ -588,4 +588,30 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     //endregion
 
+    //region Test AssetHandler::setIsUsingVersioning
+
+    public function testSetGetIsUsingVersioning() {
+        $this->handler->setIsUsingVersioning(true, "scripts");
+        $this->assertTrue($this->handler->isUsingVersioning("scripts"));
+        $this->handler->setIsUsingVersioning(false, "scripts");
+        $this->assertFalse($this->handler->isUsingVersioning("scripts"));
+    }
+
+    //endregion
+
+    //region Test versioning of assets.
+
+    public function testPrintVersionedAsset() {
+
+    }
+
+    public function testPrintVersionedAssetWhichDoesNotExist() {}
+
+    public function testPrintAllAssetsAllVersioned() {}
+
+    public function testPrintAllAssetsOneContainerVersioned() {}
+
+    public function testPrintAllAssetsVersionedIncludingNoneExistingAssets() {}
+
+    //endregion
 }
