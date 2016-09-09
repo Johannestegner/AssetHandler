@@ -109,15 +109,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Add an asset to the handler.
-     *
-     * Observe:
-     * If no container is specified the handler will add it to a predefined container depending on its file type.
-     *
-     * @param string $asset Asset path excluding the base path for given container.
-     * @param string $assetName Asset name, Optional, if no name, the path will be used as name.
-     * @param string $container Container name.
-     * @return bool
+     * @inheritdoc
      * @throws AssetNameNotUniqueException
      * @throws InvalidContainerException
      */
@@ -147,16 +139,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Remove an asset from the handler.
-     *
-     * Observe:
-     * If no container is specified the handler will try to remove it
-     * from a container based on the file type. If file type can not be determined a exception will be thrown.
-     * Its always recommended to use a container when calling this method.
-     *
-     * @param string $assetName Asset name or path.
-     * @param string $container
-     * @return bool
+     * @inheritdoc
      * @throws AssetNameNotUniqueException
      * @throws InvalidAssetException
      * @throws InvalidContainerException
@@ -180,11 +163,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Print all assets in a container (or all if none is supplied) as HTML tags.
-     * The tags will be separated with a PHP_EOL char.
-     *
-     * @param string $container Container to print.
-     * @return string HTML tags.
+     * @inheritdoc
      * @throws InvalidContainerException
      */
     public function printAll(string $container = Asset::ASSET_TYPE_ANY) : string {
@@ -221,12 +200,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Fetch all assets as a merged array of Asset objects.
-     * If container is specified, only that containers assets will be returned, else all.
-     *
-     * @internal
-     * @param string $container
-     * @return Asset[]|array
+     * @inheritdoc
      */
     public function getAssets(string $container = Asset::ASSET_TYPE_ANY) : array {
         $containers = [];
@@ -244,10 +218,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Remove a custom container (the predefined containers will not be possible to remove).
-     *
-     * @param string $containerName Name of container to remove.
-     * @return bool Result
+     * @inheritdoc
      * @throws InvalidContainerException
      */
     public function removeContainer(string $containerName) {
@@ -260,11 +231,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Set the base URL to a given container (or all).
-     *
-     * @param string $url URL to the public assets directory.
-     * @param string $container
-     * @return bool Result.
+     * @inheritdoc
      * @throws InvalidContainerException
      */
     public function setBaseUrl(string $url = "/assets", string $container = Asset::ASSET_TYPE_ANY) : bool {
@@ -285,11 +252,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Set the base path to a given container (or all).
-     *
-     * @param string $path Path to the assets folder.
-     * @param string $container
-     * @return bool
+     * @inheritdoc
      * @throws InvalidContainerException
      * @throws InvalidPathException
      */
@@ -321,29 +284,7 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Print a single asset as a HTML tag.
-     *
-     * The handler will try to determine what type of tag to use by file type if no container is supplied.
-     * The predefined containers (ex. Script and Style sheet) will use the standard tags.
-     * If no asset is found in any container, a HTML comment will be produced instead:
-     * <!-- Failed to fetch asset (/asset/path) -->
-     *
-     * Observe:
-     * Even though the container parameter is not required, it will be a faster lookup if the container is defined,
-     * if it is not defined, the handler will look through all containers for the given asset.
-     *
-     * Custom Tag:
-     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
-     * NAME and PATH.
-     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
-     * <script src="{{PATH}}"></script>
-     * Will print:
-     * <script src="/some/path/to/file.js"></script>
-     *
-     * @param string $assetName Name of the asset or the asset path.
-     * @param string $container Container for quicker access.
-     * @param string $custom Custom tag.
-     * @return string HTML formatted tag
+     * @inheritdoc
      * @throws InvalidContainerException
      */
     public function print(string $assetName, string $container = Asset::ASSET_TYPE_ANY, string $custom = "") : string {
