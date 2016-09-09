@@ -24,7 +24,7 @@ return [
             "url"           => "/assets/scripts",
             "versioned"     => true
         ],
-        "style sheets" => [
+        "styles" => [
             "print_pattern" => '<link rel="stylesheet" type="text/css" href="{{PATH}}" title="{{NAME}}">',
             "file_regex"    => "/\\.css$/i",
             "path"          => "/public/assets/styles",

@@ -8,7 +8,6 @@
 namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Contracts\AssetHandlerInterface;
-use Jite\AssetHandler\Types\AssetTypes;
 use Jite\AssetHandler\Exceptions\ {
     AssetNameNotUniqueException,
     InvalidAssetException,
@@ -124,11 +123,11 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws AssetNameNotUniqueException
      * @throws InvalidContainerException
      */
-    public function add(string $asset, string $assetName = "", string $container = AssetTypes::ANY) : bool {
+    public function add(string $asset, string $assetName = "", string $container = Asset::ASSET_TYPE_ANY) : bool {
 
         $assetName = $assetName === "" ? $asset : $assetName;
 
-        if ($container === AssetTypes::ANY) {
+        if ($container === Asset::ASSET_TYPE_ANY) {
             $container = $this->determineContainer($asset);
             if ($container === null) {
                 throw new InvalidContainerException(sprintf(Errors::CONTAINER_NOT_DETERMINABLE, $asset));
@@ -164,9 +163,9 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidAssetException
      * @throws InvalidContainerException
      */
-    public function remove(string $assetName, string $container = AssetTypes::ANY) {
+    public function remove(string $assetName, string $container = Asset::ASSET_TYPE_ANY) {
 
-        if ($container === AssetTypes::ANY) {
+        if ($container === Asset::ASSET_TYPE_ANY) {
             $container = $this->determineContainer($assetName);
 
             if ($container === null) {
@@ -190,10 +189,10 @@ class AssetHandler implements AssetHandlerInterface {
      * @return string HTML tags.
      * @throws InvalidContainerException
      */
-    public function printAll(string $container = AssetTypes::ANY) : string {
+    public function printAll(string $container = Asset::ASSET_TYPE_ANY) : string {
 
         $containers = [];
-        if ($container !== AssetTypes::ANY) {
+        if ($container !== Asset::ASSET_TYPE_ANY) {
             $containers[] = $container;
         } else {
             foreach ($this->containers as $key => $val) {
@@ -231,10 +230,10 @@ class AssetHandler implements AssetHandlerInterface {
      * @param string $container
      * @return Asset[]|array
      */
-    public function getAssets(string $container = AssetTypes::ANY) : array {
+    public function getAssets(string $container = Asset::ASSET_TYPE_ANY) : array {
         $containers = [];
 
-        if ($container === AssetTypes::ANY) {
+        if ($container === Asset::ASSET_TYPE_ANY) {
             $containers = array_keys($this->containers);
             $containers = array_map(function(string $container) {
                 return $this->containers[$container]->getContainer()->toArray();
@@ -270,9 +269,9 @@ class AssetHandler implements AssetHandlerInterface {
      * @return bool Result.
      * @throws InvalidContainerException
      */
-    public function setBaseUrl(string $url = "/assets", string $container = AssetTypes::ANY) : bool {
+    public function setBaseUrl(string $url = "/assets", string $container = Asset::ASSET_TYPE_ANY) : bool {
 
-        if ($container === AssetTypes::ANY) {
+        if ($container === Asset::ASSET_TYPE_ANY) {
             foreach ($this->containers as $container) {
                 $container->getContainer()->setBaseUrl($url);
             }
@@ -296,12 +295,12 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidContainerException
      * @throws InvalidPathException
      */
-    public function setBasePath(string $path = null, string $container = AssetTypes::ANY) : bool {
+    public function setBasePath(string $path = null, string $container = Asset::ASSET_TYPE_ANY) : bool {
         // When setting a path, the bundle needs to access the filesystem to check that the path is actually real.
         // If path is set to null, there will be no FS access.
         $containers = [];
 
-        if ($container === AssetTypes::ANY) {
+        if ($container === Asset::ASSET_TYPE_ANY) {
             $containers = array_keys($this->containers);
         } else {
             if (!array_key_exists($container, $this->containers)) {
@@ -349,10 +348,10 @@ class AssetHandler implements AssetHandlerInterface {
      * @return string HTML formatted tag
      * @throws InvalidContainerException
      */
-    public function print(string $assetName, string $container = AssetTypes::ANY, string $custom = "") : string {
+    public function print(string $assetName, string $container = Asset::ASSET_TYPE_ANY, string $custom = "") : string {
         $containers = [];
 
-        if ($container === AssetTypes::ANY) {
+        if ($container === Asset::ASSET_TYPE_ANY) {
             // Try determine container.
             $container = $this->determineContainer($assetName);
             if ($container === null) {
@@ -442,7 +441,7 @@ class AssetHandler implements AssetHandlerInterface {
      * @param string $container
      * @return bool Result.
      */
-    public function setIsUsingVersioning(bool $state, string $container = AssetTypes::ANY) : bool {
+    public function setIsUsingVersioning(bool $state, string $container = Asset::ASSET_TYPE_ANY) : bool {
         $this->isUsingVersioning = $state;
 
         // TODO: Implement setIsUsingVersioning() method.

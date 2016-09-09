@@ -7,7 +7,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler;
 
-use Jite\AssetHandler\Types\AssetTypes;
 use PHPUnit_Framework_TestCase;
 
 class AssetTest extends PHPUnit_Framework_TestCase {
@@ -31,7 +30,7 @@ class AssetTest extends PHPUnit_Framework_TestCase {
     public function testGetFullUrl() {
         // To set a full URL, a container is required.
         $container = new AssetContainer("/assets");
-        $asset     = new Asset(AssetTypes::SCRIPT, "/test.js", "test");
+        $asset     = new Asset("scripts", "/test.js", "test");
         $container->add($asset);
 
         $this->assertEquals(
@@ -42,15 +41,15 @@ class AssetTest extends PHPUnit_Framework_TestCase {
 
     public function testGetContainer() {
         $container = new AssetContainer();
-        $asset     = new Asset(AssetTypes::SCRIPT, "test.js", "test");
+        $asset     = new Asset("scripts", "test.js", "test");
         $this->assertNull($asset->getContainer());
-        $asset2 = new Asset(AssetTypes::SCRIPT, "test2.js", "test2", $container);
+        $asset2 = new Asset("scripts", "test2.js", "test2", $container);
         $this->assertEquals($container, $asset2->getContainer());
     }
 
     public function testSetContainer() {
         $container = new AssetContainer();
-        $asset     = new Asset(AssetTypes::SCRIPT, "test.js", "test");
+        $asset     = new Asset("scripts", "test.js", "test");
         $this->assertNull($asset->getContainer());
         $asset->setContainer($container);
         $this->assertEquals($container, $asset->getContainer());

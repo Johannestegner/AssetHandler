@@ -7,8 +7,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Contracts;
 
-use Jite\AssetHandler\Types\AssetTypes;
-
 interface AssetHandlerInterface {
 
     /**
@@ -22,7 +20,7 @@ interface AssetHandlerInterface {
      * @param string $container Container name.
      * @return bool
      */
-    public function add(string $asset, string $assetName = "", string $container = AssetTypes::ANY) : bool;
+    public function add(string $asset, string $assetName = "", string $container = "any") : bool;
 
     /**
      * Remove an asset from the handler.
@@ -35,7 +33,7 @@ interface AssetHandlerInterface {
      * @param string $container
      * @return bool
      */
-    public function remove(string $assetName, string $container = AssetTypes::ANY);
+    public function remove(string $assetName, string $container = "any");
 
     /**
      * Print a single asset as a HTML tag.
@@ -62,7 +60,7 @@ interface AssetHandlerInterface {
      * @param string $custom Custom tag.
      * @return string HTML formatted tag
      */
-    public function print(string $assetName, string $container = AssetTypes::ANY, string $custom = "") : string;
+    public function print(string $assetName, string $container = "any", string $custom = "") : string;
 
     /**
      * Print all assets in a container (or all if none is supplied) as HTML tags.
@@ -71,7 +69,7 @@ interface AssetHandlerInterface {
      * @param string $container Container to print.
      * @return string HTML tags.
      */
-    public function printAll(string $container = AssetTypes::ANY) : string;
+    public function printAll(string $container = "any") : string;
 
     /**
      * Fetch all assets as a merged array of Asset objects.
@@ -81,7 +79,7 @@ interface AssetHandlerInterface {
      * @param string $container
      * @return AssetInterface[]|array
      */
-    public function getAssets(string $container = AssetTypes::ANY) : array;
+    public function getAssets(string $container = "any") : array;
 
     /**
      * Set a container (or all if non is passed) to use versioning.
@@ -103,7 +101,7 @@ interface AssetHandlerInterface {
      * @param string $container
      * @return bool Result.
      */
-    public function setIsUsingVersioning(bool $state, string $container = AssetTypes::ANY) : bool;
+    public function setIsUsingVersioning(bool $state, string $container = "any") : bool;
 
     /**
      * Create a custom container.
@@ -138,7 +136,7 @@ interface AssetHandlerInterface {
      * @param string $container
      * @return bool Result.
      */
-    public function setBaseUrl(string $url = "/assets", string $container = AssetTypes::ANY) : bool;
+    public function setBaseUrl(string $url = "/assets", string $container = "any") : bool;
 
     /**
      * Set the base path to a given container (or all).
@@ -147,5 +145,5 @@ interface AssetHandlerInterface {
      * @param string $container
      * @return bool Result.
      */
-    public function setBasePath(string $path =  "public/assets", string $container = AssetTypes::ANY) : bool;
+    public function setBasePath(string $path =  "public/assets", string $container = "any") : bool;
 }

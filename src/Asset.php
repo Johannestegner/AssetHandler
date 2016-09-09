@@ -16,6 +16,8 @@ use Jite\AssetHandler\Exceptions\InvalidContainerException;
  */
 class Asset implements AssetInterface {
 
+    const ASSET_TYPE_ANY = "any";
+
     /** @var string */
     private $type;
 
