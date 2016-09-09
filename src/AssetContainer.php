@@ -12,29 +12,44 @@ use Countable;
 use IteratorAggregate;
 use Jite\AssetHandler\Contracts\AssetContainerInterface;
 use Jite\AssetHandler\Contracts\AssetInterface;
-use Traversable;
+use Jite\AssetHandler\Contracts\ContainerDataInterface;
 
 /**
  * @internal
  */
-class AssetContainer implements AssetContainerInterface, Countable, IteratorAggregate {
+class AssetContainer implements AssetContainerInterface, ContainerDataInterface {
 
     private $innerContainer = array();
     private $count          = 0;
     private $baseUrl        = "";
+    private $basePath       = "";
+    private $type           = "";
+    private $printPattern   = "";
+    private $fileRegex      = "";
+
 
     /**
-     * @param string $baseUrl
+     * @param string      $type
+     * @param string      $baseUrl
+     * @param string      $basePath
+     * @param string|null $printPattern
+     * @param string|null $fileRegex
      */
-    public function __construct(string $baseUrl = "/assets") {
-        $this->baseUrl = $baseUrl;
+    public function __construct(string $type,
+                                string $baseUrl = "/assets",
+                                string $basePath = "/public/assets",
+                                string $printPattern = null,
+                                string $fileRegex = null) {
+
+        $this->type         = $type;
+        $this->baseUrl      = $baseUrl;
+        $this->basePath     = $basePath;
+        $this->printPattern = $printPattern;
+        $this->fileRegex    = $fileRegex;
     }
 
     /**
-     * Add an asset.
-     *
-     * @param AssetInterface $asset
-     * @return bool
+     * @inheritDoc
      */
     public function add(AssetInterface $asset) : bool {
         // Check if asset already in the container.
@@ -49,10 +64,7 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
     }
 
     /**
-     * Remove an asset.
-     *
-     * @param AssetInterface $asset
-     * @return bool
+     * @inheritDoc
      */
     public function remove(AssetInterface $asset) : bool {
 
@@ -69,9 +81,7 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
     }
 
     /**
-     * Remove all assets from container.
-     *
-     * @return void
+     * @inheritDoc
      */
     public function removeAll() {
         $this->count = 0;
@@ -80,10 +90,7 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
     }
 
     /**
-     * Find the first asset which fulfills the supplied closure.
-     *
-     * @param \Closure $closure Will be passed the asset to test and should return true if found.
-     * @return AssetInterface|null
+     * @inheritDoc
      */
     public function find(\Closure $closure) {
         for ($i = $this->count; $i-->0;) {
@@ -96,11 +103,7 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
     }
 
     /**
-     * Retrieve an external iterator
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     * @since 5.0.0
+     * @inheritDoc
      */
     public function getIterator() {
         $iterator = new ArrayIterator($this->innerContainer);
@@ -108,23 +111,14 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
     }
 
     /**
-     * Count elements of an object
-     * @link http://php.net/manual/en/countable.count.php
-     * @return int The custom count as an integer.
-     * </p>
-     * <p>
-     * The return value is cast to an integer.
-     * @since 5.1.0
+     * @inheritDoc
      */
     public function count() {
         return $this->count;
     }
 
     /**
-     * Check if given asset exists in the container.
-     *
-     * @param AssetInterface $asset
-     * @return bool
+     * @inheritDoc
      */
     public function exists(AssetInterface $asset) : bool {
 
@@ -165,21 +159,52 @@ class AssetContainer implements AssetContainerInterface, Countable, IteratorAggr
     }
 
     /**
-     * Get the base path of all assets in the container.
-     *
-     * @return string
+     * @inheritDoc
      */
     public function getBaseUrl() : string {
         return $this->baseUrl;
     }
 
     /**
-     * Set the base path of all assets in the container.
-     *
-     * @param string $baseUrl
-     * @return void
+     * @inheritDoc
      */
     public function setBaseUrl(string $baseUrl) {
         $this->baseUrl = $baseUrl;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getBasePath() {
+        return $this->basePath;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setBasePath(string $basePath = null) {
+        $this->basePath = $basePath;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPrintPattern() {
+        return $this->printPattern;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFileRegex() {
+        return $this->fileRegex;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getType() : string {
+        return $this->type;
+    }
+
 }

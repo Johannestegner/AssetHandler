@@ -7,10 +7,13 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler\Contracts;
 
+use Countable;
+use IteratorAggregate;
+
 /**
  * @internal
  */
-interface AssetContainerInterface {
+interface AssetContainerInterface extends Countable, IteratorAggregate {
 
     /**
      * Add an asset.
@@ -50,22 +53,4 @@ interface AssetContainerInterface {
      * @return bool
      */
     public function exists(AssetInterface $asset) : bool;
-
-    /**
-     * Get the base path of all assets in the container.
-     *
-     * @internal Should only be used by the Asset when fetching full URL.
-     * @return string
-     */
-    public function getBaseUrl() : string;
-
-    /**
-     * Set the base path of all assets in the container.
-     *
-     * @internal Should only be used by the asset handler.
-     * @param string $baseUrl
-     * @return void
-     */
-    public function setBaseUrl(string $baseUrl);
-
 }

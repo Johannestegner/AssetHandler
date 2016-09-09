@@ -99,9 +99,17 @@ interface AssetHandlerInterface {
      *
      * @param bool   $state
      * @param string $container
-     * @return bool Result.
+     * @return void
      */
-    public function setIsUsingVersioning(bool $state, string $container = "any") : bool;
+    public function setIsUsingVersioning(bool $state, string $container = "any");
+
+    /**
+     * Check if a given container is using versioned assets.
+     *
+     * @param string $container
+     * @return bool
+     */
+    public function isUsingVersioning(string $container) : bool;
 
     /**
      * Create a custom container.
@@ -117,9 +125,14 @@ interface AssetHandlerInterface {
      *
      * @param string $containerName Unique name for the new container.
      * @param string $customTag Custom tag (see docs above).
+     * @param string $assetPath Base path for all assets in the container. Defaults to /public/assets
+     * @param string $assetUrl Base URL for all assets. Defaults to /assets.
+     * @param string $fileRegex Regex string in case the asset container should be able to auto determine assets types
+     *                          by file name.
      * @return bool Result
      */
-    public function addContainer(string $containerName, string $customTag) : bool;
+    public function addContainer(string $containerName, string $customTag, string $assetPath = "/public/assets",
+                                 string $assetUrl = "/assets", string $fileRegex = null) : bool;
 
     /**
      * Remove a custom container (the predefined containers will not be possible to remove).

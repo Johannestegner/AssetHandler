@@ -19,7 +19,7 @@ use Jite\AssetHandler\Exceptions\ {
 
 class AssetHandler implements AssetHandlerInterface {
 
-    /** @var array|ContainerData[] */
+    /** @var array|AssetContainer[] */
     private $containers = array();
 
     public function __construct() {
@@ -31,13 +31,11 @@ class AssetHandler implements AssetHandlerInterface {
             $containers = $containers['containers'];
         }
 
-
-
         foreach ((array)$containers as $type => $data) {
 
-            $this->containers[$type] = new ContainerData(
-                new AssetContainer(),
+            $this->containers[$type] = new AssetContainer(
                 $type,
+                $data['url'],
                 $data['path'],
                 $data['print_pattern'],
                 $data['file_regex']
@@ -78,7 +76,7 @@ class AssetHandler implements AssetHandlerInterface {
      */
     private function findAssetByName(string $assetName, $containers) {
         foreach ($containers as $cType) {
-            $result = $this->containers[$cType]->getContainer()->find(function(Asset $asset) use($assetName) {
+            $result = $this->containers[$cType]->find(function(Asset $asset) use($assetName) {
                 $result = $asset->getName() === $assetName;
                 return $result;
             });
@@ -98,7 +96,7 @@ class AssetHandler implements AssetHandlerInterface {
     private function findAssetByPath(string $assetPath, $containers) {
         foreach ($containers as $cType) {
 
-            $result = $this->containers[$cType]->getContainer()->find(function(Asset $asset) use($assetPath) {
+            $result = $this->containers[$cType]->find(function(Asset $asset) use($assetPath) {
                 $result = $asset->getPath() === $assetPath;
                 return $result;
             });
@@ -144,7 +142,7 @@ class AssetHandler implements AssetHandlerInterface {
             throw new AssetNameNotUniqueException(sprintf(Errors::ASSET_NOT_CONTAINER_UNIQUE, $assetName, $container));
         }
 
-        $this->containers[$container]->getContainer()->add(new Asset($container, $asset, $assetName));
+        $this->containers[$container]->add(new Asset($container, $asset, $assetName));
         return true;
     }
 
@@ -178,7 +176,7 @@ class AssetHandler implements AssetHandlerInterface {
         }
 
         $has = $this->findAssetByPath($assetName, [$container]) ?? $this->findAssetByName($assetName, [$container]);
-        return $has === null ? false : $this->containers[$container]->getContainer()->remove($has);
+        return $has === null ? false : $this->containers[$container]->remove($has);
     }
 
     /**
@@ -203,7 +201,7 @@ class AssetHandler implements AssetHandlerInterface {
         $out = "";
         foreach ($containers as $container) {
 
-            foreach ($this->containers[$container]->getContainer() as $asset) {
+            foreach ($this->containers[$container] as $asset) {
 
                 $pattern = null;
                 if (array_key_exists($container, $this->containers)) {
@@ -236,10 +234,10 @@ class AssetHandler implements AssetHandlerInterface {
         if ($container === Asset::ASSET_TYPE_ANY) {
             $containers = array_keys($this->containers);
             $containers = array_map(function(string $container) {
-                return $this->containers[$container]->getContainer()->toArray();
+                return $this->containers[$container]->toArray();
             }, $containers);
         } else {
-            $containers[] = $this->containers[$container]->getContainer()->toArray();
+            $containers[] = $this->containers[$container]->toArray();
         }
 
         return array_merge(... $containers);
@@ -273,7 +271,7 @@ class AssetHandler implements AssetHandlerInterface {
 
         if ($container === Asset::ASSET_TYPE_ANY) {
             foreach ($this->containers as $container) {
-                $container->getContainer()->setBaseUrl($url);
+                $container->setBaseUrl($url);
             }
             return true;
         }
@@ -282,7 +280,7 @@ class AssetHandler implements AssetHandlerInterface {
             throw new InvalidContainerException(sprintf(Errors::CONTAINER_NOT_EXIST, $container));
         }
 
-        $this->containers[$container]->getContainer()->setBaseUrl($url);
+        $this->containers[$container]->setBaseUrl($url);
         return true;
     }
 
@@ -316,7 +314,7 @@ class AssetHandler implements AssetHandlerInterface {
 
 
         foreach ($containers as $container) {
-            $this->containers[$container]->setPath($path);
+            $this->containers[$container]->setBasePath($path);
         }
 
         return true;
@@ -389,61 +387,39 @@ class AssetHandler implements AssetHandlerInterface {
     }
 
     /**
-     * Create a custom container.
-     * The container will use the supplied tag format when creating a HTML tag.
-     *
-     * Custom Tag:
-     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
-     * NAME and PATH.
-     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
-     * <script src="{{PATH}}"></script>
-     * Will print:
-     * <script src="/some/path/to/file.js"></script>
-     *
-     * @param string $containerName Unique name for the new container.
-     * @param string $customTag Custom tag (see docs above).
-     * @return bool Result
+     * @inheritdoc
      * @throws InvalidContainerException
      */
-    public function addContainer(string $containerName, string $customTag) : bool {
+    public function addContainer(string $containerName, string $customTag, string $assetPath = "/public/assets",
+                                 string $assetUrl = "/assets", string $fileRegex = null) : bool {
 
         if ($this->containerExists($containerName)) {
             throw new InvalidContainerException(Errors::CONTAINER_NOT_UNIQUE, $containerName);
         }
 
-        $this->containers[$containerName] = new ContainerData(
-            new AssetContainer(),
+        $this->containers[$containerName] = new AssetContainer(
             $containerName,
-            null,
+            $assetUrl,
+            $assetPath,
             $customTag,
-            null
+            $fileRegex
         );
+
         return true;
     }
 
     /**
-     * Set a container (or all if non is passed) to use versioning.
-     * The versioning will add the files last modified time to the asset name on print.
-     *
-     * This is used to make sure that the asset is loaded when it has been edited (so that the browser cache don't
-     * use an old asset).
-     *
-     * Observe:
-     * When setting versioning on a container, the containers path will have to be re-validated
-     * so that its certain that the path exists.
-     * If the directory don't exist, an error will be throws.
-     * So set the directory base path before calling this, and make sure that it is correct.
-     *
-     * When fetching assets via the print methods, if an asset is not possible to find, it will not be "versioned" as
-     * any found asset, but it will still be printed.
-     *
-     * @param bool   $state
-     * @param string $container
-     * @return bool Result.
+     * @inheritDoc
      */
-    public function setIsUsingVersioning(bool $state, string $container = Asset::ASSET_TYPE_ANY) : bool {
-        $this->isUsingVersioning = $state;
-
+    public function setIsUsingVersioning(bool $state, string $container = "any") {
         // TODO: Implement setIsUsingVersioning() method.
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function isUsingVersioning(string $container) : bool {
+        // TODO: Implement isUsingVersioning() method.
+    }
+
 }

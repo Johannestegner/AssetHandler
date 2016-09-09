@@ -15,7 +15,7 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     protected $container;
 
     public function setUp() {
-        $this->container = new AssetContainer("/assets");
+        $this->container = new AssetContainer("container", "/assets");
     }
 
     public function testAddOne() {
@@ -142,7 +142,7 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testGetBaseUrl() {
-        $container = new AssetContainer("/abc/def");
+        $container = new AssetContainer("container", "/abc/def");
         $this->assertEquals("/abc/def", $container->getBaseUrl());
     }
 
@@ -150,4 +150,27 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
         $this->container->setBaseUrl("/passets");
         $this->assertEquals("/passets", $this->container->getBaseUrl());
     }
+
+    public function tetSetGetBasePath() {
+        $container = new AssetContainer("t", "", "/def/abc/");
+        $this->assertEquals("/def/abc/", $container->getBasePath());
+        $container->setBasePath("/abc/def");
+        $this->assertEquals("/abc/def", $container->getBasePath());
+    }
+
+    public function testGetPrintPattern() {
+        $container = new AssetContainer("", "", "", '<a href="{{URL}}">test</a>');
+        $this->assertEquals('<a href="{{URL}}">test</a>', $container->getPrintPattern());
+    }
+
+    public function testGetFileRegex() {
+        $container = new AssetContainer("", "", "", "", "/\\.(jpg|jpeg|tiff|gif|png|bmp|ico)$/i");
+        $this->assertEquals("/\\.(jpg|jpeg|tiff|gif|png|bmp|ico)$/i", $container->getFileRegex());
+    }
+
+    public function testGetType() {
+        $container = new AssetContainer("Scripts");
+        $this->assertEquals("Scripts", $container->getType());
+    }
+
 }
