@@ -8,8 +8,6 @@
 namespace Jite\AssetHandler;
 
 use ArrayIterator;
-use Countable;
-use IteratorAggregate;
 use Jite\AssetHandler\Contracts\AssetContainerInterface;
 use Jite\AssetHandler\Contracts\AssetInterface;
 use Jite\AssetHandler\Contracts\ContainerDataInterface;
@@ -19,14 +17,14 @@ use Jite\AssetHandler\Contracts\ContainerDataInterface;
  */
 class AssetContainer implements AssetContainerInterface, ContainerDataInterface {
 
-    private $innerContainer = array();
-    private $count          = 0;
-    private $baseUrl        = "";
-    private $basePath       = "";
-    private $type           = "";
-    private $printPattern   = "";
-    private $fileRegex      = "";
-
+    private $innerContainer  = array();
+    private $count           = 0;
+    private $baseUrl         = "";
+    private $basePath        = "";
+    private $type            = "";
+    private $printPattern    = "";
+    private $fileRegex       = "";
+    private $versionedAssets = "";
 
     /**
      * @param string      $type
@@ -34,18 +32,21 @@ class AssetContainer implements AssetContainerInterface, ContainerDataInterface 
      * @param string      $basePath
      * @param string|null $printPattern
      * @param string|null $fileRegex
+     * @param bool        $versionedAssets
      */
     public function __construct(string $type,
                                 string $baseUrl = "/assets",
                                 string $basePath = "/public/assets",
                                 string $printPattern = null,
-                                string $fileRegex = null) {
+                                string $fileRegex = null,
+                                bool $versionedAssets = false) {
 
-        $this->type         = $type;
-        $this->baseUrl      = $baseUrl;
-        $this->basePath     = $basePath;
-        $this->printPattern = $printPattern;
-        $this->fileRegex    = $fileRegex;
+        $this->type            = $type;
+        $this->baseUrl         = $baseUrl;
+        $this->basePath        = $basePath;
+        $this->printPattern    = $printPattern;
+        $this->fileRegex       = $fileRegex;
+        $this->versionedAssets = $versionedAssets;
     }
 
     /**
@@ -205,6 +206,20 @@ class AssetContainer implements AssetContainerInterface, ContainerDataInterface 
      */
     public function getType() : string {
         return $this->type;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isUsingVersioning() : bool {
+        return $this->versionedAssets;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setIsUsingVersioning(bool $state) {
+        $this->versionedAssets = $state;
     }
 
 }

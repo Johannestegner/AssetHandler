@@ -64,4 +64,22 @@ interface ContainerDataInterface {
      * @return string
      */
     public function getType() : string;
+
+    /**
+     * If the container is versioning its assets by appending the assets last change timestamp to its
+     * filename when printing it.
+     *
+     * @return bool
+     */
+    public function isUsingVersioning() : bool;
+
+    /**
+     * Change state on versioning.
+     * If true, the assets in the container will be versioned by adding the asset last change timestamp to the
+     * filename when printing it.
+     *
+     * @param bool $state
+     * @return void
+     */
+    public function setIsUsingVersioning(bool $state);
 }

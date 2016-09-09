@@ -353,14 +353,31 @@ class AssetHandler implements AssetHandlerInterface {
      * @inheritDoc
      */
     public function setIsUsingVersioning(bool $state, string $container = "any") {
-        // TODO: Implement setIsUsingVersioning() method.
+
+        $containers = [];
+
+        if ($container === Asset::ASSET_TYPE_ANY) {
+            foreach ($this->containers as $c) {
+                $containers[] = $c->getType();
+            }
+        } else {
+            $containers[] = $container;
+        }
+
+        foreach ($containers as $container) {
+            $this->containers[$container]->setIsUsingVersioning($state);
+        }
     }
 
     /**
      * @inheritDoc
      */
     public function isUsingVersioning(string $container) : bool {
-        // TODO: Implement isUsingVersioning() method.
+        if (!array_key_exists($container, $this->containers)) {
+            throw new InvalidContainerException(sprintf(Errors::CONTAINER_NOT_EXIST, $container));
+        }
+
+        return $this->containers[$container]->isUsingVersioning();
     }
 
 }

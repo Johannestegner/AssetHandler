@@ -40,7 +40,7 @@ class AssetTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testGetContainer() {
-        $container = new AssetContainer();
+        $container = new AssetContainer("scripts");
         $asset     = new Asset("scripts", "test.js", "test");
         $this->assertNull($asset->getContainer());
         $asset2 = new Asset("scripts", "test2.js", "test2", $container);
@@ -48,7 +48,7 @@ class AssetTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testSetContainer() {
-        $container = new AssetContainer();
+        $container = new AssetContainer("scripts");
         $asset     = new Asset("scripts", "test.js", "test");
         $this->assertNull($asset->getContainer());
         $asset->setContainer($container);
