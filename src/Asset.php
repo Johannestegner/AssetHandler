@@ -45,18 +45,14 @@ class Asset implements AssetInterface {
     }
 
     /**
-     * Get path to the asset (excludes name).
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getPath() : string {
         return $this->path;
     }
 
     /**
-     * Get name of asset.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getName() : string {
         return $this->name;
@@ -82,27 +78,21 @@ class Asset implements AssetInterface {
     }
 
     /**
-     * Get type of asset.
-     *
-     * @return string
+     * @inheritdoc
      */
     public function getType() : string {
         return $this->type;
     }
 
     /**
-     * Fetch the parent container.
-     *
-     * @return AssetContainerInterface|null
+     * @inheritdoc
      */
     public function getContainer() {
         return $this->container;
     }
 
     /**
-     * Set parent container.
-     *
-     * @param AssetContainerInterface $container
+     * @inheritdoc
      */
     public function setContainer(AssetContainerInterface $container) {
         $this->container = $container;
