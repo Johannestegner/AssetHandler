@@ -1,6 +1,6 @@
 {
   "name": "johannestegner/assethandler",
-  "version": "1.0.0",
+  "version": "1.0.0-RC1",
   "description": "Simple asset handler for laravel.",
   "keywords": ["laravel", "asset"],
   "minimum-stability": "stable",
