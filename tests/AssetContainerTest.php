@@ -2,7 +2,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   AssetContainerTest.php - Part of the AssetHandler project.
 
-  File created by Simius at 2016-08-20 - kl 8:29
+  File created by Johannes Tegnér at 2016-08-20 - kl 8:29
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 namespace Jite\AssetHandler;
