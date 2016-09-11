@@ -16,7 +16,7 @@ use IteratorAggregate;
 interface AssetContainerInterface extends Countable, IteratorAggregate {
 
     /**
-     * Add an asset.
+     * Add an asset to the container.
      *
      * @param AssetInterface $asset
      * @return bool
@@ -24,22 +24,22 @@ interface AssetContainerInterface extends Countable, IteratorAggregate {
     public function add(AssetInterface $asset) : bool;
 
     /**
-     * Remove an asset by name or path.
+     * Remove an asset from the container.
      *
-     * @param AssetInterface|string $asset
+     * @param AssetInterface $asset
      * @return bool
      */
     public function remove(AssetInterface $asset) : bool;
 
     /**
-     * Remove all assets from container.
+     * Remove all assets from the container.
      *
      * @return void
      */
     public function removeAll();
 
     /**
-     * Find the first asset which fulfills the supplied closure.
+     * Find the first asset which fulfills the supplied test.
      *
      * @param \Closure $closure Will be passed the asset to test and should return true if found.
      * @return AssetInterface|null

@@ -13,7 +13,7 @@ interface AssetHandlerInterface {
      * Add an asset to the handler.
      *
      * Observe:
-     * If no container is specified the handler will add it to a predefined container depending on its file type.
+     * If no container is specified the handler will try to add it to a container depending on its file type.
      *
      * @param string $asset Asset path excluding the base path for given container.
      * @param string $assetName Asset name, Optional, if no name, the path will be used as name.
@@ -26,8 +26,7 @@ interface AssetHandlerInterface {
      * Remove an asset from the handler.
      *
      * Observe:
-     * If no container is specified the handler will try to remove it from a predefined container based on file type.
-     * If no asset is found in the predefined container, none will be removed.
+     * If no container is specified the handler will try to remove it from a container based on file type.
      *
      * @param string $assetName Asset name or path.
      * @param string $container
@@ -39,21 +38,12 @@ interface AssetHandlerInterface {
      * Print a single asset as a HTML tag.
      *
      * The handler will try to determine what type of tag to use by file type if no container is supplied.
-     * The predefined containers (ex. Script and Style sheet) will use the standard tags.
-     * If no asset is found in any container, a HTML comment will be produced instead:
-     * <!-- Failed to fetch asset (/asset/path) -->
      *
      * Observe:
      * Even though the container parameter is not required, it will be a faster lookup if the container is defined,
      * if it is not defined, the handler will look through all containers for the given asset.
      *
-     * Custom Tag:
-     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
-     * NAME and PATH.
-     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
-     * <script src="{{PATH}}"></script>
-     * Will print:
-     * <script src="/some/path/to/file.js"></script>
+     * Please see the documentation for further information about the parameters.
      *
      * @param string $assetName Name of the asset or the asset path.
      * @param string $container Container for quicker access.
@@ -75,7 +65,7 @@ interface AssetHandlerInterface {
      * Fetch all assets as a merged array of Asset objects.
      * If container is specified, only that containers assets will be returned, else all.
      *
-     * @internal
+     * @internal Usage of this method is not recommended.
      * @param string $container
      * @return AssetInterface[]|array
      */
@@ -87,15 +77,6 @@ interface AssetHandlerInterface {
      *
      * This is used to make sure that the asset is loaded when it has been edited (so that the browser cache don't
      * use an old asset).
-     *
-     * Observe:
-     * When setting versioning on a container, the containers path will have to be re-validated
-     * so that its certain that the path exists.
-     * If the directory don't exist, an error will be throws.
-     * So set the directory base path before calling this, and make sure that it is correct.
-     *
-     * When fetching assets via the print methods, if an asset is not possible to find, it will not be "versioned" as
-     * any found asset, but it will still be printed.
      *
      * @param bool   $state
      * @param string $container
@@ -115,13 +96,7 @@ interface AssetHandlerInterface {
      * Create a custom container.
      * The container will use the supplied tag format when creating a HTML tag.
      *
-     * Custom Tag:
-     * The custom tag uses a very simple template system, where two arguments will be possible to pass:
-     * NAME and PATH.
-     * The arguments in the string should be enclosed by {{ARGUMENT}} to be printed, example:
-     * <script src="{{PATH}}"></script>
-     * Will print:
-     * <script src="/some/path/to/file.js"></script>
+     * Please see the documentation for further information about the parameters.
      *
      * @param string $containerName Unique name for the new container.
      * @param string $customTag Custom tag (see docs above).
@@ -135,7 +110,7 @@ interface AssetHandlerInterface {
                                  string $assetUrl = "/assets", string $fileRegex = null) : bool;
 
     /**
-     * Remove a custom container (the predefined containers will not be possible to remove).
+     * Remove a container.
      *
      * @param string $containerName Name of container to remove.
      * @return bool Result

@@ -165,6 +165,8 @@ class AssetHandler implements AssetHandlerInterface {
     /**
      * @inheritdoc
      * @throws InvalidContainerException
+     * @throws InvalidPathException
+     * @throws InvalidAssetException
      */
     public function printAll(string $container = Asset::ASSET_TYPE_ANY) : string {
         // TODO: This function needs optimisation, calling print() for all the assets is quite dumb.
@@ -393,6 +395,7 @@ class AssetHandler implements AssetHandlerInterface {
 
     /**
      * @inheritDoc
+     * @throws InvalidContainerException
      */
     public function isUsingVersioning(string $container) : bool {
         if (!array_key_exists($container, $this->containers)) {
