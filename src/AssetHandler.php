@@ -167,6 +167,7 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidContainerException
      */
     public function printAll(string $container = Asset::ASSET_TYPE_ANY) : string {
+        // TODO: This function needs optimisation, calling print() for all the assets is quite dumb.
 
         $containers = [];
         if ($container !== Asset::ASSET_TYPE_ANY) {
@@ -179,20 +180,13 @@ class AssetHandler implements AssetHandlerInterface {
 
         $out = "";
         foreach ($containers as $container) {
-
             foreach ($this->containers[$container] as $asset) {
-
-                $pattern = null;
-                if (array_key_exists($container, $this->containers)) {
-                    $pattern = $this->containers[$container]->getPrintPattern();
-                }
-                if ($pattern === null) {
-                    throw new InvalidContainerException(sprintf(Errors::PRINT_PATTERN_MISSING, $container));
-                }
-
                 /** @var Asset $asset */
-                $pattern = str_replace("{{PATH}}", $asset->getFullUrl(), $pattern);
-                $out    .= str_replace("{{NAME}}", $asset->getName(), $pattern) . PHP_EOL;
+                $out .= $this->print(
+                    $asset->getName(),
+                    $asset->getType(),
+                    $this->containers[$container]->getPrintPattern()
+                );
             }
         }
 
@@ -334,10 +328,10 @@ class AssetHandler implements AssetHandlerInterface {
             }
         }
 
-        $url = $exists->getFullUrl();
-        if ($this->containers[$exists->getType()]->isUsingVersioning()) {
+        $url  = $exists->getFullUrl();
+        $path = $this->containers[$exists->getType()]->getBasePath() . $exists->getPath();
 
-            $path = $this->containers[$exists->getType()]->getBasePath() . $exists->getPath();
+        if ($this->containers[$exists->getType()]->isUsingVersioning()) {
 
             if (!file_exists($path)) {
                 throw new InvalidAssetException(
@@ -348,9 +342,11 @@ class AssetHandler implements AssetHandlerInterface {
         }
 
         // Replace the placeholders.
-        $pattern = str_replace("{{PATH}}", $url, $pattern);
-        $pattern = str_replace("{{URL}}", $url, $pattern);
-        return str_replace("{{NAME}}", $exists->getName(), $pattern) . PHP_EOL;
+        return str_replace(
+                [ "{{PATH}}", "{{URL}}", "{{URI}}", "{{NAME}}" ],
+                [ $path, $url, $url, $exists->getName() ],
+                $pattern
+            ) . PHP_EOL;
     }
 
     /**

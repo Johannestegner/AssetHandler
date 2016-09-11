@@ -248,6 +248,16 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
             $this->handler->print(
                 "test",
                 "scripts",
+                '<script src="{{URL}}" type="application/javascript">var a = "{{NAME}}";</script>'
+            )
+        );
+
+        $this->assertEquals(
+            '<script src="/public/assets/scripts/js/test.js" type="application/javascript">var a = "test";</script>' .
+            PHP_EOL,
+            $this->handler->print(
+                "test",
+                "scripts",
                 '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
             )
         );
