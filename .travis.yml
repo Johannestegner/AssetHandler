@@ -1,0 +1,14 @@
+language: php
+php:
+  - 7.0
+  - nightly
+install:
+  - composer install --prefer-source --no-interaction --dev
+  - pear install pear/PHP_CodeSniffer
+script:
+  phpunit
+notifications:
+  on_success: never
+  on_failure: always
+git:
+  depth: 1
