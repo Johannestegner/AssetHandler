@@ -602,16 +602,36 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     //region Test versioning of assets.
 
     public function testPrintVersionedAsset() {
+        $fsRoot = $this->setUpFilesystemMock();
+        $path   = $fsRoot->url() . "/project/public";
 
+        $this->handler->setBasePath($path, "scripts");
+        $this->handler->setIsUsingVersioning(true, "scripts");
+        $this->handler->add("/assets/js/test1.js", "test", "scripts");
+
+        $time = filemtime($path . "/assets/js/test1.js");
+
+        $this->assertEquals(
+            '<script src="/assets/assets/js/test1.js?' . $time . '" type="application/javascript"></script>' . PHP_EOL,
+            $this->handler->print("test", "scripts")
+        );
     }
 
-    public function testPrintVersionedAssetWhichDoesNotExist() {}
+    public function testPrintVersionedAssetWhichDoesNotExist() {
 
-    public function testPrintAllAssetsAllVersioned() {}
+        $fsRoot = $this->setUpFilesystemMock();
+        $path   = $fsRoot->url() . "/project/public";
 
-    public function testPrintAllAssetsOneContainerVersioned() {}
+        $this->handler->setBasePath($path, "scripts");
+        $this->handler->setIsUsingVersioning(true, "scripts");
+        $this->handler->add("/assets/js/test5.js", "test", "scripts");
 
-    public function testPrintAllAssetsVersionedIncludingNoneExistingAssets() {}
+        $this->setExpectedException(
+            InvalidAssetException::class,
+            "Asset path invalid for asset named \"test\" (vfs://www/project/public/assets/js/test5.js)."
+        );
+        $this->handler->print("test", "scripts");
+    }
 
     //endregion
 }

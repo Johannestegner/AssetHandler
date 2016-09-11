@@ -322,8 +322,22 @@ class AssetHandler implements AssetHandlerInterface {
             }
         }
 
+        $url = $exists->getFullUrl();
+        if ($this->containers[$exists->getType()]->isUsingVersioning()) {
+
+            $path = $this->containers[$exists->getType()]->getBasePath() . $exists->getPath();
+
+            if (!file_exists($path)) {
+                throw new InvalidAssetException(
+                    sprintf(Errors::INVALID_ASSET_PATH, $exists->getName(), $path)
+                );
+            }
+            $url .= '?' . filemtime($path);
+        }
+
         // Replace the placeholders.
-        $pattern = str_replace("{{PATH}}", $exists->getFullUrl(), $pattern);
+        $pattern = str_replace("{{PATH}}", $url, $pattern);
+        $pattern = str_replace("{{URL}}", $url, $pattern);
         return str_replace("{{NAME}}", $exists->getName(), $pattern) . PHP_EOL;
     }
 
