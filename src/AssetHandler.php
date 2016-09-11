@@ -286,17 +286,18 @@ class AssetHandler implements AssetHandlerInterface {
     /**
      * @inheritdoc
      * @throws InvalidContainerException
+     * @throws InvalidAssetException
      */
     public function print(string $assetName, string $container = Asset::ASSET_TYPE_ANY, string $custom = "") : string {
         $containers = [];
 
         if ($container === Asset::ASSET_TYPE_ANY) {
             // Try determine container.
-            $container = $this->determineContainer($assetName);
-            if ($container === null) {
+            $c = $this->determineContainer($assetName);
+            if ($c === null) {
                 $containers = array_keys($this->containers);
             } else {
-                $containers[] = $container;
+                $containers[] = $c;
             }
         } else {
             $containers[] = $container;
@@ -307,7 +308,18 @@ class AssetHandler implements AssetHandlerInterface {
         $exists = $this->findAssetByName($assetName, $containers) ?? $this->findAssetByPath($assetName, $containers);
 
         if (!$exists) {
-            return "<!-- Failed to fetch asset ({$assetName}) -->" . PHP_EOL;
+
+            $error = ($container === null || $container === Asset::ASSET_TYPE_ANY) ?
+                Errors::ASSET_NOT_EXIST :
+                Errors::ASSET_NOT_EXIST_IN_CONTAINER;
+
+            throw new InvalidAssetException(
+                sprintf(
+                    $error,
+                    $assetName,
+                    $container
+                )
+            );
         }
 
         // If custom is set, that is what is supposed to be used.

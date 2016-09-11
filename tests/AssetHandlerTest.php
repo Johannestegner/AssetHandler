@@ -9,7 +9,7 @@
 namespace Jite\AssetHandler;
 
 use Jite\AssetHandler\Exceptions\{
-    AssetNameNotUniqueException, InvalidContainerException, InvalidPathException
+    AssetNameNotUniqueException, InvalidAssetException, InvalidContainerException, InvalidPathException
 };
 
 use org\bovigo\vfs\vfsStream;
@@ -211,16 +211,18 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
 
     //region AssetHandler::print
 
-    public function testPrintNoAsset() {
-        $this->assertEquals(
-            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL,
-            $this->handler->print("none.js", "scripts")
-        );
+    public function testPrintNoAssetWithContainer() {
 
-        $this->assertEquals(
-            "<!-- Failed to fetch asset (none.js) -->" . PHP_EOL,
-            $this->handler->print("none.js")
+        $this->setExpectedException(
+            InvalidAssetException::class,
+            'Could not locate asset "none.js" in the container "scripts".'
         );
+        $this->handler->print("none.js", "scripts");
+    }
+
+    public function testPrintNoAssetWithoutContainer() {
+        $this->setExpectedException(InvalidAssetException::class, 'Could not locate asset "none.js".');
+        $this->handler->print("none.js");
     }
 
     public function testPrintWithAssetAndContainer() {
@@ -252,15 +254,17 @@ class AssetHandlerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testPrintNoAssetAndCustomString() {
-        $this->assertEquals(
-            '<!-- Failed to fetch asset (test) -->' . PHP_EOL,
-            $this->handler->print(
-                "test",
-                "scripts",
-                '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
-            )
+
+        $this->setExpectedException(
+            InvalidAssetException::class,
+            'Could not locate asset "test" in the container "scripts".'
         );
 
+        $this->handler->print(
+            "test",
+            "scripts",
+            '<script src="{{PATH}}" type="application/javascript">var a = "{{NAME}}";</script>'
+        );
     }
 
     public function testPrintPredefinedImage() {
