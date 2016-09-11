@@ -19,19 +19,19 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testAddOne() {
-        $this->assertTrue($this->container->add(new Asset("", "", "")));
+        $this->assertTrue($this->container->add(new Asset("", "")));
         $this->assertCount(1, $this->container);
     }
 
     public function testAddMultiple() {
-        $this->assertTrue($this->container->add(new Asset("1", "1", "1")));
-        $this->assertTrue($this->container->add(new Asset("2", "2", "2")));
+        $this->assertTrue($this->container->add(new Asset("1", "1")));
+        $this->assertTrue($this->container->add(new Asset("2", "2")));
         $this->assertCount(2, $this->container);
     }
 
     public function testAddExisting() {
-        $a1 = new Asset("1", "1", "1");
-        $a2 = new Asset("1", "1", "1");
+        $a1 = new Asset("1", "1");
+        $a2 = new Asset("1", "1");
 
         $this->assertTrue($this->container->add($a1));
         $this->assertFalse($this->container->add($a2));
@@ -40,7 +40,7 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testRemoveFromOne() {
-        $a1 = new Asset("", "", "");
+        $a1 = new Asset("", "");
 
         $this->container->add($a1);
         $this->assertCount(1, $this->container);
@@ -50,7 +50,7 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
 
 
     public function testRemoveAllWithOne() {
-        $a1 = new Asset("", "", "");
+        $a1 = new Asset("", "");
 
         $this->container->add($a1);
         $this->assertCount(1, $this->container);
@@ -59,17 +59,17 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testRemoveAllWithMultiple() {
-        $this->container->add(new Asset("1", "1", "1"));
-        $this->container->add(new Asset("2", "2", "2"));
-        $this->container->add(new Asset("3", "3", "3"));
+        $this->container->add(new Asset("1", "1"));
+        $this->container->add(new Asset("2", "2"));
+        $this->container->add(new Asset("3", "3"));
         $this->assertCount(3, $this->container);
         $this->container->removeAll();
         $this->assertCount(0, $this->container);
     }
 
     public function testRemoveThenAdd() {
-        $a1 = new Asset("1", "1", "1");
-        $a2 = new Asset("2", "2", "2");
+        $a1 = new Asset("1", "1");
+        $a2 = new Asset("2", "2");
 
         $this->container->add($a1);
         $this->assertCount(1, $this->container);
@@ -81,14 +81,14 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testFindWithExisting() {
-        $a1 = new Asset("1", "1", "1");
-        $a2 = new Asset("2", "2", "2");
+        $a1 = new Asset("1", "1");
+        $a2 = new Asset("2", "2");
 
         $this->container->add($a1);
         $this->container->add($a2);
 
         $outAsset = $this->container->find(function(Asset $a) {
-            $result = $a->getType() === "1";
+            $result = $a->getName() === "1";
             return $result;
         });
 
@@ -96,14 +96,14 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testFindWithoutExisting() {
-        $a1 = new Asset("1", "1", "1");
-        $a2 = new Asset("2", "2", "2");
+        $a1 = new Asset("1", "1");
+        $a2 = new Asset("2", "2");
 
         $this->container->add($a1);
         $this->container->add($a2);
 
         $outAsset = $this->container->find(function(Asset $a) {
-            $result = $a->getType() === "3";
+            $result = $a->getName() === "3";
             return $result;
         });
 
@@ -112,25 +112,25 @@ class AssetContainerTest extends PHPUnit_Framework_TestCase {
 
     public function testCount() {
         $this->assertEmpty($this->container);
-        $this->container->add(new Asset("1", "2", "3"));
+        $this->container->add(new Asset("2", "3"));
         $this->assertCount(1, $this->container);
-        $this->container->add(new Asset("3", "2", "1"));
+        $this->container->add(new Asset("2", "1"));
         $this->assertSame(2, $this->container->count());
         $this->container->removeAll();
         $this->assertEmpty($this->container);
     }
 
     public function testExists() {
-        $a1 = new Asset("1", "2", "3");
+        $a1 = new Asset("2", "3");
         $this->assertFalse($this->container->exists($a1));
         $this->container->add($a1);
         $this->assertTrue($this->container->exists($a1));
     }
 
     public function testForEach() {
-        $this->container->add(new Asset("1", "2", "3"));
-        $this->container->add(new Asset("1", "3", "2"));
-        $this->container->add(new Asset("2", "3", "3"));
+        $this->container->add(new Asset("2", "3"));
+        $this->container->add(new Asset("3", "2"));
+        $this->container->add(new Asset("3", "3"));
 
         $index = 0;
         foreach ($this->container as $asset) {

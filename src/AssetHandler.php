@@ -134,7 +134,7 @@ class AssetHandler implements AssetHandlerInterface {
             throw new AssetNameNotUniqueException(sprintf(Errors::ASSET_NOT_CONTAINER_UNIQUE, $assetName, $container));
         }
 
-        $this->containers[$container]->add(new Asset($container, $asset, $assetName));
+        $this->containers[$container]->add(new Asset($asset, $assetName));
         return true;
     }
 

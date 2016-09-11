@@ -13,31 +13,29 @@ namespace Jite\AssetHandler\Contracts;
 interface ContainerDataInterface {
 
     /**
-     * Get the base URL of all assets in the container.
+     * Get the base URL used by assets in the container.
      *
-     * @internal Should only be used by the Asset when fetching full URL.
      * @return string
      */
     public function getBaseUrl() : string;
 
     /**
-     * Set the base URL of all assets in the container.
+     * Set the base URL to be used by all assets in the container.
      *
-     * @internal Should only be used by the asset handler.
      * @param string $baseUrl
      * @return void
      */
     public function setBaseUrl(string $baseUrl);
 
     /**
-     * Get the base path of all assets in the container.
+     * Get the base path used by all assets in the container.
      *
      * @return string|null
      */
     public function getBasePath();
 
     /**
-     * Set the base path of all assets in the container.
+     * Set the base path to be used by assets in the container.
      *
      * @param string|null $basePath
      */
@@ -52,7 +50,7 @@ interface ContainerDataInterface {
 
     /**
      * Get regular expression used to determine file type - of assets - that a given container
-     * uses when determine where to put assets by using file type.
+     * uses when determine where to put assets by using file type (when leaving out the container name).
      *
      * @return string|null
      */
@@ -61,12 +59,23 @@ interface ContainerDataInterface {
     /**
      * Get the type name of the container.
      *
+     * @alias getName
+     * @see ContainerDataInterface::getName()
      * @return string
      */
     public function getType() : string;
 
     /**
-     * If the container is versioning its assets by appending the assets last change timestamp to its
+     * Get tye type name of the container.
+     *
+     * @alias getType
+     * @see ContainerDataInterface::getType()
+     * @return string
+     */
+    public function getName() : string;
+
+    /**
+     * Check if the container is versioning its assets by appending the assets last change timestamp to its
      * filename when printing it.
      *
      * @return bool
@@ -75,8 +84,11 @@ interface ContainerDataInterface {
 
     /**
      * Change state on versioning.
-     * If true, the assets in the container will be versioned by adding the asset last change timestamp to the
+     * If true, the assets in the container will be versioned by appending the asset last change timestamp to the
      * filename when printing it.
+     *
+     * Example:
+     * <code>test.js</code> will become <code>test.js?1234567891</code>
      *
      * @param bool $state
      * @return void

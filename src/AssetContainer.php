@@ -141,8 +141,7 @@ class AssetContainer implements AssetContainerInterface, ContainerDataInterface 
                 return $i;
             }
 
-            if ($curr->getType() === $asset->getType() &&
-                $curr->getName() === $asset->getName()) {
+            if ($curr->getName() === $asset->getName()) {
                 return $i;
             }
 
@@ -205,6 +204,13 @@ class AssetContainer implements AssetContainerInterface, ContainerDataInterface 
      * @inheritDoc
      */
     public function getType() : string {
+        return $this->type;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getName() : string {
         return $this->type;
     }
 

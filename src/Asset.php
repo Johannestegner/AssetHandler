@@ -19,26 +19,21 @@ class Asset implements AssetInterface {
     const ASSET_TYPE_ANY = "any";
 
     /** @var string */
-    private $type;
-
-    /** @var string */
     private $path;
 
     /** @var string */
     private $name;
 
-    /** @var AssetContainerInterface */
+    /** @var AssetContainer */
     private $container;
 
     /**
-     * @param $type string
      * @param $path string
      * @param $name string
      * @param $container AssetContainerInterface|null
      */
-    public function __construct(string $type, string $path, string $name, AssetContainerInterface $container = null) {
+    public function __construct(string $path, string $name, AssetContainerInterface $container = null) {
 
-        $this->type      = $type;
         $this->path      = $path;
         $this->name      = $name;
         $this->container = $container;
@@ -81,7 +76,7 @@ class Asset implements AssetInterface {
      * @inheritdoc
      */
     public function getType() : string {
-        return $this->type;
+        return $this->getContainer()->getType();
     }
 
     /**

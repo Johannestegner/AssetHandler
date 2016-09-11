@@ -14,13 +14,16 @@ interface AssetInterface {
 
     /**
      * Get type of asset.
+     * The type will be the same as the container type name.
      *
+     * @see ContainerDataInterface::getType()
+     * @see ContainerDataInterface::getName()
      * @return string
      */
     public function getType() : string;
 
     /**
-     * Get path to the asset (excludes name).
+     * Get path to the asset.
      *
      * @return string
      */
@@ -34,13 +37,15 @@ interface AssetInterface {
     public function getName() : string;
 
     /**
-     * Fetch the parent container.
+     * Fetch the container which the asset dwells in.
      *
      * @return AssetContainerInterface|null
      */
     public function getContainer();
 
     /**
+     * Set container for the given asset.
+     *
      * @param AssetContainerInterface $container
      * @return void
      */
