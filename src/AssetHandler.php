@@ -40,7 +40,8 @@ class AssetHandler implements AssetHandlerInterface {
                 $data['url'],
                 $data['path'],
                 $data['print_pattern'],
-                $data['file_regex']
+                isset($data['file_regex']) ? $data['file_regex'] : null,
+                isset($data['versioned']) ? $data['versioned'] : false
             );
         }
     }
