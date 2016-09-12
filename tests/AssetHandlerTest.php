@@ -6,12 +6,13 @@
   File created by Johannes Tegnér at 2016-08-09 - kl 22:45
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler;
+namespace JohannesTegner\AssetHandler;
 
-use Jite\AssetHandler\Exceptions\{
+use JohannesTegner\AssetHandler\Internal\Exceptions\{
     AssetNameNotUniqueException, InvalidAssetException, InvalidContainerException, InvalidPathException
 };
 
+use JohannesTegner\AssetHandler\Internal\Asset;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit_Framework_TestCase;
 

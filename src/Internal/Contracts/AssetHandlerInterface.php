@@ -5,7 +5,7 @@
   File created by Johannes Tegnér at 2016-08-08 - kl 15:21
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler\Contracts;
+namespace JohannesTegner\AssetHandler\Internal\Contracts;
 
 interface AssetHandlerInterface {
 

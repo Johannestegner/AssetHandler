@@ -5,6 +5,6 @@
   File created by Johannes Tegnér at 2016-08-29 - kl 10:32
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler\Exceptions;
+namespace JohannesTegner\AssetHandler\Internal\Exceptions;
 
 class InvalidPathException extends FormattableException { }

@@ -5,7 +5,7 @@
   File created by Johannes Tegnér at 2016-08-20 - kl 9:06
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler;
+namespace JohannesTegner\AssetHandler\Internal;
 
 use PHPUnit_Framework_TestCase;
 
@@ -18,7 +18,7 @@ class AssetTest extends PHPUnit_Framework_TestCase {
 
     public function testGetType() {
         $container = new AssetContainer("test");
-        $asset = new Asset("/", "file.js");
+        $asset     = new Asset("/", "file.js");
         $container->add($asset);
         $this->assertEquals("test", $asset->getType());
     }

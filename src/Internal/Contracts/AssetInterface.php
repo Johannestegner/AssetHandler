@@ -5,7 +5,7 @@
   File created by Johannes Tegnér at 2016-08-20 - kl 9:03
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler\Contracts;
+namespace JohannesTegner\AssetHandler\Internal\Contracts;
 
 /**
  * @internal

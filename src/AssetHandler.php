@@ -5,10 +5,10 @@
   File created by Johannes Tegnér at 2016-08-08 - kl 15:20
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler;
+namespace JohannesTegner\AssetHandler;
 
-use Jite\AssetHandler\Contracts\AssetHandlerInterface;
-use Jite\AssetHandler\Exceptions\ {
+use JohannesTegner\AssetHandler\Internal\Contracts\AssetHandlerInterface;
+use JohannesTegner\AssetHandler\Internal\Exceptions\ {
     AssetNameNotUniqueException,
     InvalidAssetException,
     InvalidContainerException,
@@ -16,6 +16,8 @@ use Jite\AssetHandler\Exceptions\ {
 
     ExceptionMessages as Errors
 };
+use JohannesTegner\AssetHandler\Internal\Asset;
+use JohannesTegner\AssetHandler\Internal\AssetContainer;
 
 class AssetHandler implements AssetHandlerInterface {
 
@@ -25,9 +27,9 @@ class AssetHandler implements AssetHandlerInterface {
     public function __construct() {
 
         if (function_exists('config')) {
-            $containers = \config('asset_handler.containers');
+            $containers = \config('asset-handler.containers');
         } else {
-            $containers = require __DIR__ . '/../config/AssetHandler.php';
+            $containers = require __DIR__ . '/../config/asset-handler.php';
             $containers = $containers['containers'];
         }
 
@@ -134,8 +136,7 @@ class AssetHandler implements AssetHandlerInterface {
             throw new AssetNameNotUniqueException(sprintf(Errors::ASSET_NOT_CONTAINER_UNIQUE, $assetName, $container));
         }
 
-        $this->containers[$container]->add(new Asset($asset, $assetName));
-        return true;
+        return $this->containers[$container]->add(new Asset($asset, $assetName));
     }
 
     /**

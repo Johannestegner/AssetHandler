@@ -1,8 +1,8 @@
 {
   "name": "johannestegner/assethandler",
-  "version": "1.0.0-RC2",
+  "version": "1.0.0-RC3",
   "description": "Simple asset handler for laravel.",
-  "keywords": ["laravel", "asset"],
+  "keywords": ["laravel", "assets"],
   "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
@@ -28,12 +28,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Jite\\AssetHandler\\": "src/"
+      "JohannesTegner\\AssetHandler\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Jite\\AssetHandler\\Tests\\": "tests/"
+      "JohannesTegner\\AssetHandler\\Tests\\": "tests/"
     }
   }
 }

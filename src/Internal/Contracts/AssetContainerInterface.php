@@ -5,7 +5,7 @@
   File created by Johannes Tegnér at 2016-08-18 - kl 10:27
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler\Contracts;
+namespace JohannesTegner\AssetHandler\Internal\Contracts;
 
 use Countable;
 use IteratorAggregate;

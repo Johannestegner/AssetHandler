@@ -6,24 +6,24 @@
   File created by Johannes Tegnér at 2016-08-08 - kl 15:14
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace Jite\AssetHandler;
+namespace JohannesTegner\AssetHandler;
 
 use Illuminate\Support\ServiceProvider;
 
 class AssetHandlerServiceProvider extends ServiceProvider {
 
     public function register() {
-        $configPath = __DIR__ . '/../config/AssetHandler.php';
-        $this->mergeConfigFrom($configPath, 'AssetHandler');
+        $configPath = __DIR__ . '/../config/asset-handler.php';
+        $this->mergeConfigFrom($configPath, 'asset-handler');
     }
 
     public function boot() {
         $config = __DIR__ . '/../config/AssetHandler.php';
         /** @noinspection PhpUndefinedFunctionInspection */
-        $publish = base_path('config/AssetHandler.php');
+        $publish = base_path('config/asset-handler.php');
 
         if (function_exists('config_path')) {
-            $publish = config_path('AssetHandler.php');
+            $publish = config_path('asset-handler.php');
         }
 
         $this->publishes([$config => $publish], 'config');
