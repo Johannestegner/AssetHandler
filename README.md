@@ -1,5 +1,5 @@
 # AssetHandler
-Super simple asset handler for the laravel framework.
+Super simple asset handler for the laravel (5.3) framework.
 
 Master.  
 [![Build Status](https://travis-ci.org/Johannestegner/AssetHandler.svg?branch=master)](https://travis-ci.org/Johannestegner/AssetHandler)   
@@ -17,7 +17,7 @@ Hopefully it will come in handy for others than me.
 ### Installation and usage in laravel.
 
 #### Install via composer, require the package.
-`composer require johannestegner/assethandler`
+`composer require johannestegner/asset-handler`
 
 Add the Asset handler to the autoloaded service providers array in `app.php`: 
 
@@ -57,7 +57,8 @@ Further documentation can be found in the Wiki.
 
 ### Requirements
 AssetHandler currently requires php7.  
-A 5.x fork or branch is planned in the near future.
+A 5.x fork or branch is planned in the near future.  
+The lib is built for laravel 5.3+ but could probably work on other releases too.
 
 #### Contributions
 Johannes Tegnér
