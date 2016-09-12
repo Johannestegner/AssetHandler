@@ -1,9 +1,10 @@
 {
-  "name": "johannestegner/assethandler",
-  "version": "1.0.0-RC3",
+  "name": "johannestegner/asset-handler",
+  "version": "1.0.0",
   "description": "Simple asset handler for laravel.",
   "keywords": ["laravel", "assets"],
   "minimum-stability": "stable",
+  "homepage": "https://github.com/Johannestegner/AssetHandler",
   "license": "MIT",
   "authors": [
     {
