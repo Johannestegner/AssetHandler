@@ -34,7 +34,7 @@ Add the facade alias to the class aliases array in `app.php`:
 ```php
 'aliases' => [
     // .......
-    'AssetHandler' => Jite\AssetHandler\AssetHandlerFacade::class,
+    'AssetHandler' => JohannesTegner\AssetHandler\AssetHandlerFacade::class,
 ]
 ```
 

@@ -146,7 +146,7 @@ class AssetHandler implements AssetHandlerInterface {
      * @throws InvalidAssetException
      * @throws InvalidContainerException
      */
-    public function remove(string $assetName, string $container = Asset::ASSET_TYPE_ANY) {
+    public function remove(string $assetName, string $container = Asset::ASSET_TYPE_ANY) : bool {
 
         if ($container === Asset::ASSET_TYPE_ANY) {
             $container = $this->determineContainer($assetName);
@@ -328,6 +328,7 @@ class AssetHandler implements AssetHandlerInterface {
             if (array_key_exists($exists->getType(), $this->containers)) {
                 $pattern = $this->containers[$exists->getType()]->getPrintPattern();
             } else {
+                // This should never happen. An asset should always have a container.
                 throw new InvalidContainerException(Errors::PRINT_PATTERN_MISSING, $exists->getType());
             }
         }
