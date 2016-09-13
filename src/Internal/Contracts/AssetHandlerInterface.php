@@ -32,7 +32,7 @@ interface AssetHandlerInterface {
      * @param string $container
      * @return bool
      */
-    public function remove(string $assetName, string $container = "any");
+    public function remove(string $assetName, string $container = "any") : bool;
 
     /**
      * Print a single asset as a HTML tag.
