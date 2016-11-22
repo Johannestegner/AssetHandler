@@ -5,6 +5,6 @@
   File created by Johannes Tegnér at 2016-08-22 - kl 15:44
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler\Internal\Exceptions;
+namespace Jitesoft\AssetHandler\Internal\Exceptions;
 
 class InvalidAssetException extends FormattableException { }

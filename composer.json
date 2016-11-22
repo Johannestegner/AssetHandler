@@ -1,23 +1,23 @@
 {
   "name": "jitesoft/asset-handler",
-  "version": "1.0.0",
+  "version": "1.0.0-RC3",
   "description": "Simple asset handler for laravel.",
   "keywords": ["laravel", "assets"],
   "minimum-stability": "stable",
-  "homepage": "https://github.com/Johannestegner/AssetHandler",
+  "homepage": "https://github.com/jitesoft/AssetHandler",
   "license": "MIT",
   "authors": [
     {
       "name": "Johannes Tegnér",
-      "email": "jitedev@gmail.com",
+      "email": "johannes@jitesoft.com",
       "homepage": "https://jite.eu",
       "role": "Developer"
     }
   ],
   "support": {
-    "issues": "https://github.com/Johannestegner/AssetHandler/issues",
-    "email": "jitedev@gmail.com",
-    "source": "https://github.com/Johannestegner/AssetHandler"
+    "issues": "https://github.com/jitesoft/AssetHandler/issues",
+    "email": "support@jitesoft.com",
+    "source": "https://github.com/jitesoft/AssetHandler"
   },
   "require": {
     "php": ">=7.0",
@@ -29,12 +29,12 @@
   },
   "autoload": {
     "psr-4": {
-      "JohannesTegner\\AssetHandler\\": "src/"
+      "Jitesoft\\AssetHandler\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "JohannesTegner\\AssetHandler\\Tests\\": "tests/"
+      "Jitesoft\\AssetHandler\\Tests\\": "tests/"
     }
   }
 }

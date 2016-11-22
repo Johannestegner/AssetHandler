@@ -5,10 +5,10 @@
   File created by Johannes Tegnér at 2016-08-08 - kl 15:20
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler;
+namespace Jitesoft\AssetHandler;
 
-use JohannesTegner\AssetHandler\Internal\Contracts\AssetHandlerInterface;
-use JohannesTegner\AssetHandler\Internal\Exceptions\ {
+use Jitesoft\AssetHandler\Internal\Contracts\AssetHandlerInterface;
+use Jitesoft\AssetHandler\Internal\Exceptions\ {
     AssetNameNotUniqueException,
     InvalidAssetException,
     InvalidContainerException,
@@ -16,8 +16,8 @@ use JohannesTegner\AssetHandler\Internal\Exceptions\ {
 
     ExceptionMessages as Errors
 };
-use JohannesTegner\AssetHandler\Internal\Asset;
-use JohannesTegner\AssetHandler\Internal\AssetContainer;
+use Jitesoft\AssetHandler\Internal\Asset;
+use Jitesoft\AssetHandler\Internal\AssetContainer;
 
 class AssetHandler implements AssetHandlerInterface {
 
