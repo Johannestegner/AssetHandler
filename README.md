@@ -2,9 +2,9 @@
 Super simple asset handler for the laravel (5.3) framework.
 
 Master.  
-[![Build Status](https://travis-ci.org/Johannestegner/AssetHandler.svg?branch=master)](https://travis-ci.org/Johannestegner/AssetHandler)   
+[![Build Status](https://travis-ci.org/jitesoft/AssetHandler.svg?branch=master)](https://travis-ci.org/jitesoft/AssetHandler)   
 Develop.  
-[![Build Status](https://travis-ci.org/Johannestegner/AssetHandler.svg?branch=develop)](https://travis-ci.org/Johannestegner/AssetHandler)
+[![Build Status](https://travis-ci.org/jitesoft/AssetHandler.svg?branch=develop)](https://travis-ci.org/jitesoft/AssetHandler)
 
 ### Why?
 This package is created for internal projects mainly. You are welcome to use it, contribute or just further develop it.  
@@ -17,7 +17,7 @@ Hopefully it will come in handy for others than me.
 ### Installation and usage in laravel.
 
 #### Install via composer, require the package.
-`composer require johannestegner/asset-handler`
+`composer require jitesoft/asset-handler`
 
 Add the Asset handler to the autoloaded service providers array in `app.php`: 
 
@@ -25,7 +25,7 @@ Add the Asset handler to the autoloaded service providers array in `app.php`:
 
 'providers' => [
     // ......      
-    JohannesTegner\AssetHandler\AssetHandlerServiceProvider::class,
+    jitesoft\AssetHandler\AssetHandlerServiceProvider::class,
 ]
 ```
 
@@ -34,7 +34,7 @@ Add the facade alias to the class aliases array in `app.php`:
 ```php
 'aliases' => [
     // .......
-    'AssetHandler' => JohannesTegner\AssetHandler\AssetHandlerFacade::class,
+    'AssetHandler' => jitesoft\AssetHandler\AssetHandlerFacade::class,
 ]
 ```
 
@@ -56,7 +56,7 @@ AssetHandler::print('jquery');
 Further documentation can be found in the Wiki.
 
 ### Requirements
-AssetHandler currently requires php7.  
+AssetHandler currently requires php7+.  
 A 5.x fork or branch is planned in the near future.  
 The lib is built for laravel 5.3+ but could probably work on other releases too.
 
@@ -68,7 +68,7 @@ Johannes Tegnér
 ```
 MIT License
 
-Copyright (c) 2016 Johannes Tegnér
+Copyright (c) 2016 Jitesoft
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

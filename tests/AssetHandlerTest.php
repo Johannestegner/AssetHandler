@@ -1,5 +1,4 @@
 <?php
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   AssetHandlerTest.php - Part of the AssetHandler project.
 
