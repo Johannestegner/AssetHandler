@@ -32,7 +32,7 @@ return [
             "versioned"     => false
         ],
         //
-        // Add your own custom containers here.
+        // Add your own containers here.
         //
     )
 ];

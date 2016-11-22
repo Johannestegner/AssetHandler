@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="Jite rule set">
     <description>
-        PHPCS Rule set for PHP projects made by Johannes Tegnér
+        PHPCS Rule set for PHP projects made by Jitesoft
     </description>
     <rule ref="Generic.Classes.DuplicateClassName"/>
     <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
