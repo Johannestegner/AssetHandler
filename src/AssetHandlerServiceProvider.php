@@ -6,7 +6,7 @@
   File created by Johannes Tegnér at 2016-08-08 - kl 15:14
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler;
+namespace Jitesoft\AssetHandler;
 
 use Illuminate\Support\ServiceProvider;
 

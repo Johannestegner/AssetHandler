@@ -5,12 +5,12 @@
   File created by Johannes Tegnér at 2016-08-18 - kl 10:27
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler\Internal;
+namespace Jitesoft\AssetHandler\Internal;
 
 use ArrayIterator;
-use JohannesTegner\AssetHandler\Internal\Contracts\AssetContainerInterface;
-use JohannesTegner\AssetHandler\Internal\Contracts\AssetInterface;
-use JohannesTegner\AssetHandler\Internal\Contracts\ContainerDataInterface;
+use Jitesoft\AssetHandler\Internal\Contracts\AssetContainerInterface;
+use Jitesoft\AssetHandler\Internal\Contracts\AssetInterface;
+use Jitesoft\AssetHandler\Internal\Contracts\ContainerDataInterface;
 
 /**
  * @internal
