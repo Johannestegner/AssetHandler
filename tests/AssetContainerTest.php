@@ -5,7 +5,7 @@
   File created by Johannes Tegnér at 2016-08-20 - kl 8:29
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler\Internal;
+namespace Jitesoft\AssetHandler\Internal;
 
 use PHPUnit_Framework_TestCase;
 
