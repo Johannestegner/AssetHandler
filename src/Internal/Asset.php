@@ -5,11 +5,11 @@
   File created by Johannes Tegnér at 2016-08-20 - kl 9:06
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler\Internal;
+namespace Jitesoft\AssetHandler\Internal;
 
-use JohannesTegner\AssetHandler\Internal\Contracts\AssetContainerInterface;
-use JohannesTegner\AssetHandler\Internal\Contracts\AssetInterface;
-use JohannesTegner\AssetHandler\Internal\Exceptions\InvalidContainerException;
+use Jitesoft\AssetHandler\Internal\Contracts\AssetContainerInterface;
+use Jitesoft\AssetHandler\Internal\Contracts\AssetInterface;
+use Jitesoft\AssetHandler\Internal\Exceptions\InvalidContainerException;
 
 /**
  * @internal

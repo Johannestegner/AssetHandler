@@ -6,7 +6,7 @@
   File created by Johannes Tegnér at 2016-09-11 - kl 19:21
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler;
+namespace Jitesoft\AssetHandler;
 
 use Illuminate\Support\Facades\Facade;
 
