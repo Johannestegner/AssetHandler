@@ -1,5 +1,5 @@
 {
-  "name": "johannestegner/asset-handler",
+  "name": "jitesoft/asset-handler",
   "version": "1.0.0",
   "description": "Simple asset handler for laravel.",
   "keywords": ["laravel", "assets"],
