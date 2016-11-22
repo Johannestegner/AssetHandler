@@ -5,7 +5,7 @@
   File created by Johannes Tegnér at 2016-08-29 - kl 17:31
   © - 2016
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-namespace JohannesTegner\AssetHandler\Internal\Exceptions;
+namespace Jitesoft\AssetHandler\Internal\Exceptions;
 
 use Exception;
 
